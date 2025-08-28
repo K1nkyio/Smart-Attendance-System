@@ -6,6 +6,8 @@ import LoginForm from './LoginForm';
 import StudentDashboard from './StudentDashboard';
 import InstructorDashboard from './InstructorDashboard';
 import QRScanner from './QRScanner';
+import { Navigation } from './Navigation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Mock data
 const mockData = {
@@ -44,6 +46,7 @@ const mockData = {
 };
 
 const AttendanceSystem = () => {
+  const { t } = useLanguage();
   const [currentUser, setCurrentUser] = useState(null);
   const [userType, setUserType] = useState(null);
   const [currentView, setCurrentView] = useState('home'); // home, login, dashboard, scanner
@@ -98,10 +101,10 @@ const AttendanceSystem = () => {
           </div>
         </div>
         <h1 className="text-4xl font-playfair font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
-          Smart Attendance System
+          {t('smartAttendanceSystem')}
         </h1>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          Streamlined attendance tracking with QR codes for modern classrooms
+          {t('streamlinedAttendance')}
         </p>
       </div>
 
@@ -114,14 +117,14 @@ const AttendanceSystem = () => {
                 <Users className="h-6 w-6 text-primary" />
               </div>
             </div>
-            <CardTitle className="text-lg">Student Access</CardTitle>
+            <CardTitle className="text-lg">{t('studentAccess')}</CardTitle>
           </CardHeader>
           <CardContent className="text-center">
             <p className="text-muted-foreground text-sm mb-4">
-              Scan QR codes to record your attendance
+              {t('scanQRCodes')}
             </p>
             <Button variant="outline" className="w-full">
-              Student Login
+              {t('studentLogin')}
             </Button>
           </CardContent>
         </Card>
@@ -134,14 +137,14 @@ const AttendanceSystem = () => {
                 <QrCode className="h-6 w-6 text-primary" />
               </div>
             </div>
-            <CardTitle className="text-lg">Instructor Portal</CardTitle>
+            <CardTitle className="text-lg">{t('instructorPortal')}</CardTitle>
           </CardHeader>
           <CardContent className="text-center">
             <p className="text-muted-foreground text-sm mb-4">
-              Generate QR codes and track attendance
+              {t('generateQRCodes')}
             </p>
             <Button variant="outline" className="w-full">
-              Instructor Login
+              {t('instructorLogin')}
             </Button>
           </CardContent>
         </Card>
@@ -153,40 +156,40 @@ const AttendanceSystem = () => {
                 <BarChart3 className="h-6 w-6 text-primary" />
               </div>
             </div>
-            <CardTitle className="text-lg">Live Stats</CardTitle>
+            <CardTitle className="text-lg">{t('liveStats')}</CardTitle>
           </CardHeader>
           <CardContent className="text-center space-y-2">
             <div className="text-2xl font-bold text-primary">{mockData.students.length}</div>
-            <p className="text-muted-foreground text-sm">Active Students</p>
+            <p className="text-muted-foreground text-sm">{t('activeStudents')}</p>
             <div className="text-lg font-semibold text-accent-foreground">{attendanceData.length}</div>
-            <p className="text-muted-foreground text-xs">Total Check-ins Today</p>
+            <p className="text-muted-foreground text-xs">{t('totalCheckins')}</p>
           </CardContent>
         </Card>
       </div>
 
       <div className="bg-card/50 rounded-xl p-6 border border-muted/50">
-        <h3 className="text-xl font-semibold mb-4 text-center">How It Works</h3>
+        <h3 className="text-xl font-semibold mb-4 text-center">{t('howItWorks')}</h3>
         <div className="grid md:grid-cols-3 gap-6 text-center">
           <div className="space-y-2">
             <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
               <span className="text-primary font-bold">1</span>
             </div>
-            <h4 className="font-semibold">Generate QR Code</h4>
-            <p className="text-muted-foreground text-sm">Instructor creates unique QR code for each class session</p>
+            <h4 className="font-semibold">{t('generateQRCode')}</h4>
+            <p className="text-muted-foreground text-sm">{t('instructorCreates')}</p>
           </div>
           <div className="space-y-2">
             <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
               <span className="text-primary font-bold">2</span>
             </div>
-            <h4 className="font-semibold">Students Scan</h4>
-            <p className="text-muted-foreground text-sm">Students use their phones to scan the QR code</p>
+            <h4 className="font-semibold">{t('studentsScan')}</h4>
+            <p className="text-muted-foreground text-sm">{t('studentsUsePhones')}</p>
           </div>
           <div className="space-y-2">
             <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
               <span className="text-primary font-bold">3</span>
             </div>
-            <h4 className="font-semibold">Track Attendance</h4>
-            <p className="text-muted-foreground text-sm">Automatic attendance recording with timestamps</p>
+            <h4 className="font-semibold">{t('trackAttendance')}</h4>
+            <p className="text-muted-foreground text-sm">{t('automaticRecording')}</p>
           </div>
         </div>
       </div>
@@ -195,60 +198,105 @@ const AttendanceSystem = () => {
 
   if (currentView === 'login') {
     return (
-      <LoginForm 
-        onLogin={handleLogin}
-        onBack={() => setCurrentView('home')}
-      />
+      <>
+        <Navigation 
+          showBack 
+          onBack={() => setCurrentView('home')}
+          title={t('login')}
+        />
+        <div className="pt-16">
+          <LoginForm 
+            onLogin={handleLogin}
+            onBack={() => setCurrentView('home')}
+          />
+        </div>
+      </>
     );
   }
 
   if (currentView === 'scanner') {
     return (
-      <QRScanner 
-        currentUser={currentUser}
-        onAttendanceRecord={handleAttendanceRecord}
-        onBack={() => setCurrentView('dashboard')}
-        mockData={mockData}
-      />
+      <>
+        <Navigation 
+          showBack 
+          onBack={() => setCurrentView('dashboard')}
+          showHome
+          onHome={() => setCurrentView('home')}
+          title="QR Scanner"
+        />
+        <div className="pt-16">
+          <QRScanner 
+            currentUser={currentUser}
+            onAttendanceRecord={handleAttendanceRecord}
+            onBack={() => setCurrentView('dashboard')}
+            mockData={mockData}
+          />
+        </div>
+      </>
     );
   }
 
   if (currentView === 'dashboard' && userType === 'student') {
     return (
-      <StudentDashboard 
-        user={currentUser}
-        attendanceData={attendanceData}
-        mockData={mockData}
-        onScanQR={() => setCurrentView('scanner')}
-        onLogout={handleLogout}
-      />
+      <>
+        <Navigation 
+          showHome
+          onHome={() => setCurrentView('home')}
+          showLogout
+          onLogout={handleLogout}
+          title={`${t('student')} Dashboard`}
+        />
+        <div className="pt-16">
+          <StudentDashboard 
+            user={currentUser}
+            attendanceData={attendanceData}
+            mockData={mockData}
+            onScanQR={() => setCurrentView('scanner')}
+            onLogout={handleLogout}
+          />
+        </div>
+      </>
     );
   }
 
   if (currentView === 'dashboard' && userType === 'instructor') {
     return (
-      <InstructorDashboard 
-        user={currentUser}
-        attendanceData={attendanceData}
-        mockData={mockData}
-        onLogout={handleLogout}
-      />
+      <>
+        <Navigation 
+          showHome
+          onHome={() => setCurrentView('home')}
+          showLogout
+          onLogout={handleLogout}
+          title={`${t('instructor')} Dashboard`}
+        />
+        <div className="pt-16">
+          <InstructorDashboard 
+            user={currentUser}
+            attendanceData={attendanceData}
+            mockData={mockData}
+            onLogout={handleLogout}
+          />
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-accent/10 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl animate-float"></div>
-        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-accent/10 to-transparent rounded-full blur-3xl animate-float" style={{ animationDelay: '1.5s' }}></div>
+    <>
+      <Navigation />
+      <div className="pt-16 min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-accent/10 relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl animate-float"></div>
+          <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-accent/10 to-transparent rounded-full blur-3xl animate-float" style={{ animationDelay: '1.5s' }}></div>
+        </div>
+        
+        {/* Main content */}
+        <div className="relative z-10 w-full px-4">
+          {renderHomeView()}
+        </div>
       </div>
-      
-      {/* Main content */}
-      <div className="relative z-10 w-full px-4">
-        {renderHomeView()}
-      </div>
-    </div>
+    </>
   );
 };
 

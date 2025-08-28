@@ -6,8 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, LogIn, User, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const LoginForm = ({ onLogin, onBack }) => {
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -16,7 +18,7 @@ const LoginForm = ({ onLogin, onBack }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error("Please fill in all fields");
+      toast.error(t('fillFields'));
       return;
     }
 
@@ -28,9 +30,9 @@ const LoginForm = ({ onLogin, onBack }) => {
       setIsLoading(false);
       
       if (success) {
-        toast.success(`Welcome back!`);
+        toast.success(`${t('welcomeBack')}!`);
       } else {
-        toast.error("Invalid credentials. Try demo accounts below.");
+        toast.error(t('invalidCredentials'));
       }
     }, 1000);
   };
@@ -84,10 +86,10 @@ const LoginForm = ({ onLogin, onBack }) => {
               </div>
             </div>
             <CardTitle className="text-2xl font-playfair font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
-              Welcome Back
+              {t('welcomeBack')}
             </CardTitle>
             <p className="text-muted-foreground">
-              Sign in to access your account
+              {t('signIn')}
             </p>
           </CardHeader>
 
@@ -96,18 +98,18 @@ const LoginForm = ({ onLogin, onBack }) => {
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="student" className="flex items-center gap-2">
                   <User className="h-4 w-4" />
-                  Student
+                  {t('student')}
                 </TabsTrigger>
                 <TabsTrigger value="instructor" className="flex items-center gap-2">
                   <GraduationCap className="h-4 w-4" />
-                  Instructor
+                  {t('instructor')}
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="student" className="space-y-4 mt-6">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t('email')}</Label>
                     <Input
                       id="email"
                       type="email"
@@ -118,13 +120,13 @@ const LoginForm = ({ onLogin, onBack }) => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password">{t('password')}</Label>
                     <Input
                       id="password"
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter your password"
+                      placeholder={t('password')}
                       className="bg-background/50"
                     />
                   </div>
@@ -133,12 +135,12 @@ const LoginForm = ({ onLogin, onBack }) => {
                     className="w-full gradient-primary"
                     disabled={isLoading}
                   >
-                    {isLoading ? "Signing in..." : "Sign In as Student"}
+                    {isLoading ? t('signingIn') : t('signInAsStudent')}
                   </Button>
                 </form>
                 
                 <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground text-center">Demo Accounts:</p>
+                  <p className="text-xs text-muted-foreground text-center">{t('demoAccounts')}</p>
                   <div className="grid grid-cols-2 gap-2">
                     <Button 
                       variant="outline" 
@@ -163,7 +165,7 @@ const LoginForm = ({ onLogin, onBack }) => {
               <TabsContent value="instructor" className="space-y-4 mt-6">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t('email')}</Label>
                     <Input
                       id="email"
                       type="email"
@@ -174,13 +176,13 @@ const LoginForm = ({ onLogin, onBack }) => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password">{t('password')}</Label>
                     <Input
                       id="password"
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter your password"
+                      placeholder={t('password')}
                       className="bg-background/50"
                     />
                   </div>
@@ -189,12 +191,12 @@ const LoginForm = ({ onLogin, onBack }) => {
                     className="w-full gradient-primary"
                     disabled={isLoading}
                   >
-                    {isLoading ? "Signing in..." : "Sign In as Instructor"}
+                    {isLoading ? t('signingIn') : t('signInAsInstructor')}
                   </Button>
                 </form>
                 
                 <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground text-center">Demo Accounts:</p>
+                  <p className="text-xs text-muted-foreground text-center">{t('demoAccounts')}</p>
                   <div className="grid grid-cols-1 gap-2">
                     <Button 
                       variant="outline" 
