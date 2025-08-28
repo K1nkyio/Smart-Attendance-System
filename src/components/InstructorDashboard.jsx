@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,26 +14,44 @@ import {
   GraduationCap,
   BarChart3,
   Download,
-  RefreshCw
+  RefreshCw,
+  Plus,
+  Eye,
+  ArrowLeft
 } from "lucide-react";
 import { toast } from "sonner";
+import ClassCreationForm from './ClassCreationForm';
+import AttendanceReports from './AttendanceReports';
 
 const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
   const [selectedClass, setSelectedClass] = useState(null);
   const [activeQR, setActiveQR] = useState(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showReports, setShowReports] = useState(false);
+  const [instructorClasses, setInstructorClasses] = useState([]);
 
-  // Get instructor's classes
-  const instructorClasses = mockData.classes.filter(cls => 
-    cls.instructor === user.name
-  );
+  // Initialize instructor's classes
+  useEffect(() => {
+    const classes = mockData.classes.filter(cls => 
+      cls.instructor === user.name
+    );
+    setInstructorClasses(classes);
+  }, [mockData.classes, user.name]);
 
-  // Generate QR code data
+  // Generate QR code data with enhanced information
   const generateQRCode = (classId) => {
+    const classInfo = instructorClasses.find(cls => cls.id === classId);
     const timestamp = Date.now();
     const qrData = {
       classId,
       timestamp,
       instructorId: user.id,
+      instructorName: classInfo?.instructor || user.name,
+      className: classInfo?.name || '',
+      location: classInfo?.location || '',
+      unitCode: classInfo?.unitCode || '',
+      session: classInfo?.schedule || '',
+      contact: classInfo?.contact || { phone: '', email: '' },
       expiresAt: timestamp + (30 * 60 * 1000) // 30 minutes
     };
     return JSON.stringify(qrData);
@@ -60,6 +78,17 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const handleCreateClass = async (newClass) => {
+    // Add the new class to the instructor's classes
+    setInstructorClasses(prev => [...prev, newClass]);
+    
+    // Update the mock data (in a real app, this would be sent to the backend)
+    mockData.classes.push(newClass);
+    
+    // Hide the form
+    setShowCreateForm(false);
   };
 
   const exportAttendance = (classId) => {
@@ -108,7 +137,40 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
           </Button>
         </div>
 
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-4 gap-6">
+        {/* Create Class Form */}
+        {showCreateForm && (
+          <div className="max-w-4xl mx-auto mb-6">
+            <ClassCreationForm 
+              onCreateClass={handleCreateClass}
+              onCancel={() => setShowCreateForm(false)}
+            />
+          </div>
+        )}
+
+        {/* Detailed Reports View */}
+        {showReports && selectedClass && (
+          <div className="max-w-6xl mx-auto mb-6">
+            <div className="flex items-center mb-4">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowReports(false)}
+                className="mr-4"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Dashboard
+              </Button>
+            </div>
+            <AttendanceReports 
+              classInfo={instructorClasses.find(cls => cls.id === selectedClass)}
+              attendanceData={attendanceData}
+              mockData={mockData}
+            />
+          </div>
+        )}
+
+        {/* Main Dashboard */}
+        {!showCreateForm && !showReports && (
+          <div className="max-w-7xl mx-auto grid lg:grid-cols-4 gap-6">
           {/* QR Code Generator */}
           <Card className="lg:col-span-1 glass-effect">
             <CardHeader>
@@ -156,9 +218,15 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
           {/* My Classes */}
           <Card className="lg:col-span-3 glass-effect">
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Users className="h-5 w-5 mr-2 text-primary" />
-                My Classes
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Users className="h-5 w-5 mr-2 text-primary" />
+                  My Classes ({instructorClasses.length})
+                </div>
+                <Button onClick={() => setShowCreateForm(true)} size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Class
+                </Button>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -181,10 +249,13 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                       onClick={() => setSelectedClass(cls.id)}
                     >
                       <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="font-semibold text-foreground">{cls.name}</h3>
-                          <p className="text-muted-foreground text-sm">{cls.id}</p>
-                        </div>
+                      <div>
+                        <h3 className="font-semibold text-foreground">{cls.name}</h3>
+                        <p className="text-muted-foreground text-sm">{cls.unitCode || cls.id}</p>
+                        {cls.description && (
+                          <p className="text-xs text-muted-foreground mt-1">{cls.description}</p>
+                        )}
+                      </div>
                         <Badge variant="secondary">
                           {totalStudents} students
                         </Badge>
@@ -218,6 +289,19 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                             >
                               <QrCode className="h-4 w-4 mr-1" />
                               Generate QR
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedClass(cls.id);
+                                setShowReports(true);
+                              }}
+                              className="h-8"
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              Reports
                             </Button>
                             <Button 
                               variant="outline" 
@@ -288,11 +372,24 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                       <p className="text-sm">Generate a QR code for students to scan</p>
                     </div>
                   )}
+              </div>
+              
+              {instructorClasses.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-lg font-medium mb-2">No classes created yet</p>
+                  <p className="text-sm mb-4">Create your first class to start tracking attendance</p>
+                  <Button onClick={() => setShowCreateForm(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Your First Class
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
+              )}
+            </CardContent>
+          </Card>
           )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
