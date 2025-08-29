@@ -17,8 +17,10 @@ import {
   Save
 } from "lucide-react";
 import { toast } from "sonner";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const ClassCreationForm = ({ onCreateClass, onCancel }) => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     instructorName: '',
     className: '',
@@ -85,7 +87,7 @@ const ClassCreationForm = ({ onCreateClass, onCancel }) => {
 
     try {
       await onCreateClass(newClass);
-      toast.success('Class created successfully!');
+      toast.success(t('classCreated'));
       
       // Reset form
       setFormData({
@@ -130,7 +132,7 @@ const ClassCreationForm = ({ onCreateClass, onCancel }) => {
       <CardHeader>
         <CardTitle className="flex items-center">
           <Plus className="h-5 w-5 mr-2 text-primary" />
-          Create New Class
+          {t('createNewClass')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -140,13 +142,13 @@ const ClassCreationForm = ({ onCreateClass, onCancel }) => {
             <div className="space-y-2">
               <Label htmlFor="instructorName" className="flex items-center">
                 <User className="h-4 w-4 mr-1" />
-                Instructor/Lecturer Name *
+                {t('instructorName')} *
               </Label>
               <Input
                 id="instructorName"
                 value={formData.instructorName}
                 onChange={(e) => handleInputChange('instructorName', e.target.value)}
-                placeholder="Enter instructor name"
+                placeholder={t('enterInstructorName')}
                 required
               />
             </div>
@@ -155,13 +157,13 @@ const ClassCreationForm = ({ onCreateClass, onCancel }) => {
             <div className="space-y-2">
               <Label htmlFor="className" className="flex items-center">
                 <BookOpen className="h-4 w-4 mr-1" />
-                Lecture/Class Name *
+                {t('className')} *
               </Label>
               <Input
                 id="className"
                 value={formData.className}
                 onChange={(e) => handleInputChange('className', e.target.value)}
-                placeholder="Enter class name"
+                placeholder={t('enterClassName')}
                 required
               />
             </div>
@@ -170,13 +172,13 @@ const ClassCreationForm = ({ onCreateClass, onCancel }) => {
             <div className="space-y-2">
               <Label htmlFor="location" className="flex items-center">
                 <MapPin className="h-4 w-4 mr-1" />
-                Room Location/Code *
+                {t('roomLocation')} *
               </Label>
               <Input
                 id="location"
                 value={formData.location}
                 onChange={(e) => handleInputChange('location', e.target.value)}
-                placeholder="e.g., Room 101, Building A"
+                placeholder={t('enterRoomLocation')}
                 required
               />
             </div>
@@ -185,13 +187,13 @@ const ClassCreationForm = ({ onCreateClass, onCancel }) => {
             <div className="space-y-2">
               <Label htmlFor="unitCode" className="flex items-center">
                 <Hash className="h-4 w-4 mr-1" />
-                Class/Unit Code *
+                {t('unitCode')} *
               </Label>
               <Input
                 id="unitCode"
                 value={formData.unitCode}
                 onChange={(e) => handleInputChange('unitCode', e.target.value)}
-                placeholder="e.g., CS101, MATH201"
+                placeholder={t('enterUnitCode')}
                 required
               />
             </div>
@@ -200,11 +202,11 @@ const ClassCreationForm = ({ onCreateClass, onCancel }) => {
             <div className="space-y-2">
               <Label className="flex items-center">
                 <Clock className="h-4 w-4 mr-1" />
-                Session Time *
+                {t('sessionTime')} *
               </Label>
               <Select onValueChange={(value) => handleInputChange('session', value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select session time" />
+                  <SelectValue placeholder={t('selectSessionTime')} />
                 </SelectTrigger>
                 <SelectContent>
                   {sessionOptions.map((session) => (
@@ -220,13 +222,13 @@ const ClassCreationForm = ({ onCreateClass, onCancel }) => {
             <div className="space-y-2">
               <Label htmlFor="phoneNumber" className="flex items-center">
                 <Phone className="h-4 w-4 mr-1" />
-                Phone Number *
+                {t('phoneNumber')} *
               </Label>
               <Input
                 id="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                placeholder="Enter phone number"
+                placeholder={t('enterPhoneNumber')}
                 type="tel"
                 required
               />
@@ -236,13 +238,13 @@ const ClassCreationForm = ({ onCreateClass, onCancel }) => {
             <div className="space-y-2">
               <Label htmlFor="email" className="flex items-center">
                 <Mail className="h-4 w-4 mr-1" />
-                Email Address *
+                {t('emailAddress')} *
               </Label>
               <Input
                 id="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                placeholder="Enter email address"
+                placeholder={t('enterEmailAddress')}
                 type="email"
                 required
               />
@@ -250,23 +252,23 @@ const ClassCreationForm = ({ onCreateClass, onCancel }) => {
 
             {/* Department */}
             <div className="space-y-2">
-              <Label htmlFor="department">Department</Label>
+              <Label htmlFor="department">{t('department')}</Label>
               <Input
                 id="department"
                 value={formData.department}
                 onChange={(e) => handleInputChange('department', e.target.value)}
-                placeholder="e.g., Computer Science"
+                placeholder={t('enterDepartment')}
               />
             </div>
 
             {/* Capacity */}
             <div className="space-y-2">
-              <Label htmlFor="capacity">Class Capacity</Label>
+              <Label htmlFor="capacity">{t('classCapacity')}</Label>
               <Input
                 id="capacity"
                 value={formData.capacity}
                 onChange={(e) => handleInputChange('capacity', e.target.value)}
-                placeholder="Maximum students (default: 50)"
+                placeholder={t('maxStudents')}
                 type="number"
                 min="1"
                 max="500"
@@ -276,12 +278,12 @@ const ClassCreationForm = ({ onCreateClass, onCancel }) => {
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="description">Description (Optional)</Label>
+            <Label htmlFor="description">{t('description')}</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Brief description of the class"
+              placeholder={t('briefDescription')}
               rows={3}
             />
           </div>
@@ -294,7 +296,7 @@ const ClassCreationForm = ({ onCreateClass, onCancel }) => {
               onClick={onCancel}
               disabled={isSubmitting}
             >
-              Cancel
+              {t('cancel')}
             </Button>
             <Button 
               type="submit" 
@@ -304,12 +306,12 @@ const ClassCreationForm = ({ onCreateClass, onCancel }) => {
               {isSubmitting ? (
                 <div className="flex items-center">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2"></div>
-                  Creating...
+                  {t('creating')}
                 </div>
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  Create Class
+                  {t('createClass')}
                 </>
               )}
             </Button>

@@ -15,8 +15,10 @@ import {
   BarChart3
 } from "lucide-react";
 import { toast } from "sonner";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const AttendanceReports = ({ classInfo, attendanceData, mockData }) => {
+  const { t } = useLanguage();
   const [selectedDate, setSelectedDate] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
 
@@ -106,7 +108,7 @@ const AttendanceReports = ({ classInfo, attendanceData, mockData }) => {
     a.href = url;
     a.download = `${classInfo.name}_detailed_report_${selectedDate}.csv`;
     a.click();
-    toast.success("Detailed report exported successfully!");
+    toast.success(t('attendanceExported'));
   };
 
   const attendanceRate = enrolledStudents.length > 0 
@@ -119,11 +121,11 @@ const AttendanceReports = ({ classInfo, attendanceData, mockData }) => {
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center">
             <BarChart3 className="h-5 w-5 mr-2 text-primary" />
-            Attendance Report - {classInfo.name}
+            {t('attendanceReport')} - {classInfo.name}
           </div>
           <Button onClick={exportDetailedReport} variant="outline" size="sm">
             <Download className="h-4 w-4 mr-2" />
-            Export Report
+            {t('exportReport')}
           </Button>
         </CardTitle>
       </CardHeader>

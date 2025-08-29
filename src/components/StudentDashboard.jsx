@@ -12,8 +12,10 @@ import {
   User,
   BookOpen
 } from "lucide-react";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const StudentDashboard = ({ user, attendanceData, mockData, onScanQR, onLogout }) => {
+  const { t } = useLanguage();
   // Get student's classes
   const studentClasses = mockData.classes.filter(cls => 
     cls.students.includes(user.id)
@@ -55,7 +57,7 @@ const StudentDashboard = ({ user, attendanceData, mockData, onScanQR, onLogout }
           </div>
           <Button variant="outline" onClick={onLogout}>
             <LogOut className="h-4 w-4 mr-2" />
-            Logout
+            {t('logout')}
           </Button>
         </div>
 
@@ -71,9 +73,9 @@ const StudentDashboard = ({ user, attendanceData, mockData, onScanQR, onLogout }
                   </div>
                 </div>
               </div>
-              <CardTitle className="text-xl">Quick Scan</CardTitle>
+              <CardTitle className="text-xl">{t('quickScan')}</CardTitle>
               <p className="text-muted-foreground text-sm">
-                Scan QR code to mark attendance
+                {t('scanQRCodeToMark')}
               </p>
             </CardHeader>
             <CardContent>
@@ -83,7 +85,7 @@ const StudentDashboard = ({ user, attendanceData, mockData, onScanQR, onLogout }
                 size="lg"
               >
                 <QrCode className="mr-2 h-5 w-5" />
-                Scan QR Code
+                {t('scanQRCode')}
               </Button>
             </CardContent>
           </Card>
@@ -93,7 +95,7 @@ const StudentDashboard = ({ user, attendanceData, mockData, onScanQR, onLogout }
             <CardHeader>
               <CardTitle className="flex items-center">
                 <BookOpen className="h-5 w-5 mr-2 text-primary" />
-                My Classes
+                {t('myClasses')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -114,7 +116,7 @@ const StudentDashboard = ({ user, attendanceData, mockData, onScanQR, onLogout }
                           <p className="text-muted-foreground text-sm">{cls.instructor}</p>
                         </div>
                         <Badge variant="secondary">
-                          {attendanceCount} sessions attended
+                          {attendanceCount} {t('sessionsAttended')}
                         </Badge>
                       </div>
                       <div className="flex items-center space-x-4 text-sm text-muted-foreground">
@@ -134,7 +136,7 @@ const StudentDashboard = ({ user, attendanceData, mockData, onScanQR, onLogout }
                 {studentClasses.length === 0 && (
                   <div className="text-center py-8 text-muted-foreground">
                     <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>No classes enrolled yet</p>
+                    <p>{t('noClassesEnrolled')}</p>
                   </div>
                 )}
               </div>
@@ -146,7 +148,7 @@ const StudentDashboard = ({ user, attendanceData, mockData, onScanQR, onLogout }
             <CardHeader>
               <CardTitle className="flex items-center">
                 <CheckCircle className="h-5 w-5 mr-2 text-primary" />
-                Recent Attendance
+                {t('recentAttendance')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -168,7 +170,7 @@ const StudentDashboard = ({ user, attendanceData, mockData, onScanQR, onLogout }
                             {classInfo?.name || record.classId}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            {classInfo?.location || 'Unknown location'}
+                            {classInfo?.location || t('unknownLocation')}
                           </p>
                         </div>
                       </div>
@@ -178,7 +180,7 @@ const StudentDashboard = ({ user, attendanceData, mockData, onScanQR, onLogout }
                           {formatDate(record.timestamp)}
                         </div>
                         <Badge variant="outline" className="text-green-600 border-green-200 dark:border-green-800">
-                          Present
+                          {t('present')}
                         </Badge>
                       </div>
                     </div>
@@ -188,8 +190,8 @@ const StudentDashboard = ({ user, attendanceData, mockData, onScanQR, onLogout }
                 {studentAttendance.length === 0 && (
                   <div className="text-center py-8 text-muted-foreground">
                     <CheckCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>No attendance records yet</p>
-                    <p className="text-sm">Scan a QR code to mark your first attendance</p>
+                    <p>{t('noAttendanceYet')}</p>
+                    <p className="text-sm">{t('scanFirstAttendance')}</p>
                   </div>
                 )}
               </div>

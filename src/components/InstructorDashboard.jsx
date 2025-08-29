@@ -22,8 +22,10 @@ import {
 import { toast } from "sonner";
 import ClassCreationForm from './ClassCreationForm';
 import AttendanceReports from './AttendanceReports';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
+  const { t } = useLanguage();
   const [selectedClass, setSelectedClass] = useState(null);
   const [activeQR, setActiveQR] = useState(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -59,7 +61,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
 
   const handleGenerateQR = (classId) => {
     setActiveQR({ classId, data: generateQRCode(classId), timestamp: Date.now() });
-    toast.success("QR Code generated! Valid for 30 minutes");
+    toast.success(t('qrCodeGenerated'));
   };
 
   const getClassAttendance = (classId) => {
@@ -108,7 +110,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
     a.href = url;
     a.download = `${classInfo?.name || classId}_attendance.csv`;
     a.click();
-    toast.success("Attendance exported successfully!");
+    toast.success(t('attendanceExported'));
   };
 
   return (
@@ -133,7 +135,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
           </div>
           <Button variant="outline" onClick={onLogout}>
             <LogOut className="h-4 w-4 mr-2" />
-            Logout
+            {t('logout')}
           </Button>
         </div>
 
@@ -157,7 +159,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                 className="mr-4"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
+                {t('backToDashboard')}
               </Button>
             </div>
             <AttendanceReports 
@@ -176,7 +178,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
             <CardHeader>
               <CardTitle className="flex items-center text-lg">
                 <QrCode className="h-5 w-5 mr-2 text-primary" />
-                QR Generator
+                {t('qrGenerator')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -191,8 +193,8 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                     />
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    <p>Active for: {mockData.classes.find(c => c.id === activeQR.classId)?.name}</p>
-                    <p>Generated: {formatDate(new Date(activeQR.timestamp).toISOString())}</p>
+                    <p>{t('activeFor')} {mockData.classes.find(c => c.id === activeQR.classId)?.name}</p>
+                    <p>{t('generated')} {formatDate(new Date(activeQR.timestamp).toISOString())}</p>
                   </div>
                   <Button 
                     variant="outline" 
@@ -201,14 +203,14 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                     className="w-full"
                   >
                     <RefreshCw className="h-4 w-4 mr-2" />
-                    Regenerate
+                    {t('regenerate')}
                   </Button>
                 </div>
               ) : (
                 <div className="text-center py-4">
                   <QrCode className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
                   <p className="text-muted-foreground text-sm">
-                    Select a class to generate QR code
+                    {t('selectClassToGenerate')}
                   </p>
                 </div>
               )}
@@ -221,11 +223,11 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Users className="h-5 w-5 mr-2 text-primary" />
-                  My Classes ({instructorClasses.length})
+                  {t('myClasses')} ({instructorClasses.length})
                 </div>
                 <Button onClick={() => setShowCreateForm(true)} size="sm">
                   <Plus className="h-4 w-4 mr-2" />
-                  Create Class
+                  {t('createClass')}
                 </Button>
               </CardTitle>
             </CardHeader>
@@ -257,7 +259,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                         )}
                       </div>
                         <Badge variant="secondary">
-                          {totalStudents} students
+                          {totalStudents} {t('students')}
                         </Badge>
                       </div>
                       
@@ -276,7 +278,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center text-sm">
                             <CheckCircle className="h-4 w-4 mr-1 text-green-600" />
-                            <span className="text-foreground">Today: {todayAttendance.length}/{totalStudents}</span>
+                            <span className="text-foreground">{t('todayAttendance')} {todayAttendance.length}/{totalStudents}</span>
                           </div>
                           <div className="flex space-x-2">
                             <Button 
@@ -288,7 +290,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                               className="h-8"
                             >
                               <QrCode className="h-4 w-4 mr-1" />
-                              Generate QR
+                              {t('generateQRCode')}
                             </Button>
                             <Button 
                               variant="outline" 
@@ -301,7 +303,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                               className="h-8"
                             >
                               <Eye className="h-4 w-4 mr-1" />
-                              Reports
+                              {t('reports')}
                             </Button>
                             <Button 
                               variant="outline" 
@@ -330,7 +332,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <BarChart3 className="h-5 w-5 mr-2 text-primary" />
-                  Attendance Details - {instructorClasses.find(c => c.id === selectedClass)?.name}
+                  {t('attendanceDetails')} - {instructorClasses.find(c => c.id === selectedClass)?.name}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -359,7 +361,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                           {formatDate(record.timestamp)}
                         </div>
                         <Badge variant="outline" className="text-green-600 border-green-200 dark:border-green-800">
-                          Present
+                          {t('present')}
                         </Badge>
                       </div>
                     </div>
@@ -368,8 +370,8 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                   {getClassAttendance(selectedClass).length === 0 && (
                     <div className="text-center py-8 text-muted-foreground">
                       <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>No attendance records yet</p>
-                      <p className="text-sm">Generate a QR code for students to scan</p>
+                      <p>{t('noAttendanceRecords')}</p>
+                      <p className="text-sm">{t('generateQRForStudents')}</p>
                     </div>
                   )}
               </div>
@@ -377,11 +379,11 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
               {instructorClasses.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                   <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p className="text-lg font-medium mb-2">No classes created yet</p>
-                  <p className="text-sm mb-4">Create your first class to start tracking attendance</p>
+                  <p className="text-lg font-medium mb-2">{t('noClassesCreated')}</p>
+                  <p className="text-sm mb-4">{t('createFirstClass')}</p>
                   <Button onClick={() => setShowCreateForm(true)}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Create Your First Class
+                    {t('createYourFirstClass')}
                   </Button>
                 </div>
               )}

@@ -13,8 +13,10 @@ import {
   Scan
 } from "lucide-react";
 import { toast } from "sonner";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const QRScanner = ({ currentUser, onAttendanceRecord, onBack, mockData }) => {
+  const { t } = useLanguage();
   const [scanMode, setScanMode] = useState('manual'); // 'camera' or 'manual'
   const [manualInput, setManualInput] = useState('');
   const [isScanning, setIsScanning] = useState(false);
@@ -41,10 +43,10 @@ const QRScanner = ({ currentUser, onAttendanceRecord, onBack, mockData }) => {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
-      toast.success("Camera started! Point at QR code to scan");
+      toast.success(t('cameraStarted'));
     } catch (error) {
       console.error('Camera error:', error);
-      toast.error("Camera access denied. Please use manual input instead.");
+      toast.error(t('cameraAccessDenied'));
       setScanMode('manual');
       setIsScanning(false);
     }
@@ -74,19 +76,19 @@ const QRScanner = ({ currentUser, onAttendanceRecord, onBack, mockData }) => {
       // Validate class exists
       const classInfo = mockData.classes.find(cls => cls.id === classId);
       if (!classInfo) {
-        toast.error("Invalid class code");
+        toast.error(t('invalidClassCode'));
         return false;
       }
 
       // Check if student is enrolled in this class
       if (!classInfo.students.includes(currentUser.id)) {
-        toast.error("You are not enrolled in this class");
+        toast.error(t('notEnrolledInClass'));
         return false;
       }
 
       // Check if QR code has expired (for dynamic codes)
       if (expiresAt && Date.now() > expiresAt) {
-        toast.error("QR code has expired");
+        toast.error(t('qrCodeExpired'));
         return false;
       }
 
@@ -94,7 +96,7 @@ const QRScanner = ({ currentUser, onAttendanceRecord, onBack, mockData }) => {
       if (lastScan && 
           lastScan.classId === classId && 
           Date.now() - lastScan.timestamp < 5 * 60 * 1000) {
-        toast.error("Attendance already recorded for this class");
+        toast.error(t('attendanceAlreadyRecorded'));
         return false;
       }
 
@@ -102,12 +104,12 @@ const QRScanner = ({ currentUser, onAttendanceRecord, onBack, mockData }) => {
       onAttendanceRecord(currentUser.id, classId);
       setLastScan({ classId, timestamp: Date.now() });
       
-      toast.success(`Attendance recorded for ${classInfo.name}!`);
+      toast.success(`${t('attendanceMarked')} ${classInfo.name}!`);
       return true;
 
     } catch (error) {
       console.error('QR processing error:', error);
-      toast.error("Invalid QR code format");
+      toast.error(t('invalidQRFormat'));
       return false;
     }
   };
@@ -115,7 +117,7 @@ const QRScanner = ({ currentUser, onAttendanceRecord, onBack, mockData }) => {
   const handleManualSubmit = (e) => {
     e.preventDefault();
     if (!manualInput.trim()) {
-      toast.error("Please enter a class code");
+      toast.error(t('pleaseEnterClassCode'));
       return;
     }
 
@@ -151,8 +153,8 @@ const QRScanner = ({ currentUser, onAttendanceRecord, onBack, mockData }) => {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Scan Attendance</h1>
-              <p className="text-muted-foreground">Scan QR code to mark your attendance</p>
+              <h1 className="text-2xl font-bold text-foreground">{t('scanAttendance')}</h1>
+              <p className="text-muted-foreground">{t('scanQRCodeToMarkAttendance')}</p>
             </div>
           </div>
 
@@ -161,7 +163,7 @@ const QRScanner = ({ currentUser, onAttendanceRecord, onBack, mockData }) => {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <QrCode className="h-5 w-5 mr-2 text-primary" />
-                QR Code Scanner
+                {t('qrCodeScanner')}
               </CardTitle>
               <div className="flex space-x-2">
                 <Button
@@ -175,7 +177,7 @@ const QRScanner = ({ currentUser, onAttendanceRecord, onBack, mockData }) => {
                   }}
                 >
                   <Camera className="h-4 w-4 mr-2" />
-                  Camera
+                  {t('camera')}
                 </Button>
                 <Button
                   variant={scanMode === 'manual' ? 'default' : 'outline'}
@@ -186,7 +188,7 @@ const QRScanner = ({ currentUser, onAttendanceRecord, onBack, mockData }) => {
                   }}
                 >
                   <Type className="h-4 w-4 mr-2" />
-                  Manual
+                  {t('manual')}
                 </Button>
               </div>
             </CardHeader>
@@ -197,11 +199,11 @@ const QRScanner = ({ currentUser, onAttendanceRecord, onBack, mockData }) => {
                     <div className="text-center py-8">
                       <Camera className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
                       <p className="text-muted-foreground mb-4">
-                        Camera access required for QR code scanning
+                        {t('cameraAccessRequired')}
                       </p>
                       <Button onClick={startCamera} className="gradient-primary">
                         <Camera className="h-4 w-4 mr-2" />
-                        Start Camera
+                        {t('startCamera')}
                       </Button>
                     </div>
                   ) : (
@@ -221,10 +223,10 @@ const QRScanner = ({ currentUser, onAttendanceRecord, onBack, mockData }) => {
                       </div>
                       <div className="text-center">
                         <p className="text-muted-foreground text-sm mb-4">
-                          Point your camera at the QR code
+                          {t('pointCameraAtQR')}
                         </p>
                         <Button variant="outline" onClick={stopCamera}>
-                          Stop Camera
+                          {t('stopCamera')}
                         </Button>
                       </div>
                     </div>
@@ -233,18 +235,18 @@ const QRScanner = ({ currentUser, onAttendanceRecord, onBack, mockData }) => {
               ) : (
                 <form onSubmit={handleManualSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="manual-input">Enter Class Code</Label>
+                    <Label htmlFor="manual-input">{t('enterClassCode')}</Label>
                     <Input
                       id="manual-input"
                       value={manualInput}
                       onChange={(e) => setManualInput(e.target.value)}
-                      placeholder="e.g., CS101 or scan data"
+                      placeholder={t('enterClassCodePlaceholder')}
                       className="bg-background/50"
                     />
                   </div>
                   <Button type="submit" className="w-full gradient-primary">
                     <Scan className="h-4 w-4 mr-2" />
-                    Submit Attendance
+                    {t('submitAttendance')}
                   </Button>
                 </form>
               )}
@@ -256,10 +258,10 @@ const QRScanner = ({ currentUser, onAttendanceRecord, onBack, mockData }) => {
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
                 <CheckCircle className="h-5 w-5 mr-2 text-green-600" />
-                Demo: Quick Scan
+                {t('demoQuickScan')}
               </CardTitle>
               <p className="text-muted-foreground text-sm">
-                For demonstration, click these buttons to simulate scanning QR codes
+                {t('simulateScanningDemo')}
               </p>
             </CardHeader>
             <CardContent>
@@ -291,9 +293,9 @@ const QRScanner = ({ currentUser, onAttendanceRecord, onBack, mockData }) => {
                 <div className="flex items-center space-x-3 text-green-600 dark:text-green-400">
                   <CheckCircle className="h-5 w-5" />
                   <div>
-                    <p className="font-medium">Attendance Recorded</p>
+                    <p className="font-medium">{t('attendanceRecorded')}</p>
                     <p className="text-sm opacity-80">
-                      Last scan: {mockData.classes.find(c => c.id === lastScan.classId)?.name}
+                      {t('lastScan')} {mockData.classes.find(c => c.id === lastScan.classId)?.name}
                     </p>
                   </div>
                 </div>
