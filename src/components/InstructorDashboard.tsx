@@ -115,7 +115,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary to-accent relative overflow-hidden">
-      <div className="relative z-10 min-h-screen p-4 space-y-6">
+      <div className="relative z-10 min-h-screen p-3 sm:p-4 space-y-5 sm:space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center space-x-3 sm:space-x-4">
             <div className="bg-primary/10 p-2 sm:p-3 rounded-full">
@@ -162,8 +162,8 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
         )}
 
         {!showCreateForm && !showReports && (
-          <div className="max-w-7xl mx-auto space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="max-w-7xl mx-auto space-y-5 sm:space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
           <Card className="lg:col-span-1 glass-effect">
             <CardHeader>
               <CardTitle className="flex items-center text-lg">
@@ -327,7 +327,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3 sm:space-y-4">
+                <div className="space-y-3 sm:space-y-4 overflow-x-auto">
                   {getClassAttendance(selectedClass).slice(-20).reverse().map((record, index) => (
                     <div 
                       key={index} 
