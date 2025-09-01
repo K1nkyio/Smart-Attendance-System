@@ -101,23 +101,21 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
     classAttendance.forEach(record => {
       const studentName = getStudentName(record.studentId);
       const date = new Date(record.timestamp);
-      csvContent += `${studentName},${record.studentId},${date.toLocaleDateString()},${date.toLocaleTimeString()},${record.status}\n`;
+      csvContent += [studentName, record.studentId, date.toLocaleDateString(), date.toLocaleTimeString(), record.status].join(",") + "\n";
     });
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${classInfo?.name || classId}_attendance.csv`;
+    a.download = (classInfo?.name || classId) + "_attendance.csv";
     a.click();
     toast.success(t('attendanceExported'));
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/10 relative overflow-hidden">
-
       <div className="relative z-10 min-h-screen p-4 space-y-6">
-        
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center space-x-3 sm:space-x-4">
             <div className="bg-primary/10 p-2 sm:p-3 rounded-full">
@@ -134,7 +132,6 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
           </Button>
         </div>
 
-        
         {showCreateForm && (
           <div className="max-w-4xl mx-auto mb-6">
             <ClassCreationForm 
@@ -144,7 +141,6 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
           </div>
         )}
 
-        
         {showReports && selectedClass && (
           <div className="max-w-6xl mx-auto mb-6">
             <div className="flex items-center mb-4">
@@ -165,12 +161,9 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
           </div>
         )}
 
-        
         {!showCreateForm && !showReports && (
           <div className="max-w-7xl mx-auto space-y-6">
-          
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          
           <Card className="lg:col-span-1 glass-effect">
             <CardHeader>
               <CardTitle className="flex items-center text-lg">
@@ -214,7 +207,6 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
             </CardContent>
           </Card>
 
-          
           <Card className="lg:col-span-3 glass-effect">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
@@ -237,14 +229,15 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                     new Date(record.timestamp).toDateString() === new Date().toDateString()
                   );
                   
+                  const cardClasses = "p-3 sm:p-4 rounded-lg border transition-all cursor-pointer " +
+                    (selectedClass === cls.id
+                      ? "border-primary bg-primary/5"
+                      : "border-muted/50 bg-background/50 hover:bg-background/80");
+                  
                   return (
                     <div 
                       key={cls.id} 
-                      className={`p-3 sm:p-4 rounded-lg border transition-all cursor-pointer ${
-                        selectedClass === cls.id 
-                          ? 'border-primary bg-primary/5' 
-                          : 'border-muted/50 bg-background/50 hover:bg-background/80'
-                      }`}
+                      className={cardClasses}
                       onClick={() => setSelectedClass(cls.id)}
                     >
                       <div className="flex flex-col sm:flex-row justify-between items-start mb-3">
@@ -325,7 +318,6 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
             </CardContent>
           </Card>
 
-          
           {selectedClass && (
             <Card className="lg:col-span-4 glass-effect">
               <CardHeader>
