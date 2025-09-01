@@ -123,17 +123,17 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
 
       <div className="relative z-10 min-h-screen p-4 space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-4">
-            <div className="bg-primary/10 p-3 rounded-full">
-              <GraduationCap className="h-6 w-6 text-primary" />
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="bg-primary/10 p-2 sm:p-3 rounded-full">
+              <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Welcome, {user.name}</h1>
-              <p className="text-muted-foreground">{user.department}</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground">Welcome, {user.name}</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">{user.department}</p>
             </div>
           </div>
-          <Button variant="outline" onClick={onLogout}>
+          <Button variant="outline" onClick={onLogout} size="sm" className="self-end sm:self-auto">
             <LogOut className="h-4 w-4 mr-2" />
             {t('logout')}
           </Button>
@@ -172,7 +172,9 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
 
         {/* Main Dashboard */}
         {!showCreateForm && !showReports && (
-          <div className="max-w-7xl mx-auto grid lg:grid-cols-4 gap-6">
+          <div className="max-w-7xl mx-auto space-y-6">
+          {/* Mobile: Stack vertically, Desktop: Grid layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* QR Code Generator */}
           <Card className="lg:col-span-1 glass-effect">
             <CardHeader>
@@ -232,7 +234,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {instructorClasses.map((cls) => {
                   const attendance = getClassAttendance(cls.id);
                   const totalStudents = cls.students.length;
@@ -243,54 +245,55 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                   return (
                     <div 
                       key={cls.id} 
-                      className={`p-4 rounded-lg border transition-all cursor-pointer ${
+                      className={`p-3 sm:p-4 rounded-lg border transition-all cursor-pointer ${
                         selectedClass === cls.id 
                           ? 'border-primary bg-primary/5' 
                           : 'border-muted/50 bg-background/50 hover:bg-background/80'
                       }`}
                       onClick={() => setSelectedClass(cls.id)}
                     >
-                      <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h3 className="font-semibold text-foreground">{cls.name}</h3>
-                        <p className="text-muted-foreground text-sm">{cls.unitCode || cls.id}</p>
+                      <div className="flex flex-col sm:flex-row justify-between items-start mb-3">
+                      <div className="flex-1 mb-2 sm:mb-0">
+                        <h3 className="font-semibold text-foreground text-sm sm:text-base">{cls.name}</h3>
+                        <p className="text-muted-foreground text-xs sm:text-sm">{cls.unitCode || cls.id}</p>
                         {cls.description && (
-                          <p className="text-xs text-muted-foreground mt-1">{cls.description}</p>
+                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{cls.description}</p>
                         )}
                       </div>
-                        <Badge variant="secondary">
+                        <Badge variant="secondary" className="text-xs">
                           {totalStudents} {t('students')}
                         </Badge>
                       </div>
                       
                       <div className="space-y-2 mb-4">
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0 text-xs sm:text-sm text-muted-foreground">
                           <div className="flex items-center">
-                            <Calendar className="h-4 w-4 mr-1" />
-                            {cls.schedule}
+                            <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                            <span className="truncate">{cls.schedule}</span>
                           </div>
                           <div className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-1" />
-                            {cls.location}
+                            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                            <span className="truncate">{cls.location}</span>
                           </div>
                         </div>
                         
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center text-sm">
-                            <CheckCircle className="h-4 w-4 mr-1 text-green-600" />
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                          <div className="flex items-center text-xs sm:text-sm">
+                            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1 text-green-600" />
                             <span className="text-foreground">{t('todayAttendance')} {todayAttendance.length}/{totalStudents}</span>
                           </div>
-                          <div className="flex space-x-2">
+                          <div className="flex flex-wrap gap-1 sm:gap-2">
                             <Button 
                               size="sm" 
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleGenerateQR(cls.id);
                               }}
-                              className="h-8"
+                              className="h-7 sm:h-8 text-xs px-2"
                             >
-                              <QrCode className="h-4 w-4 mr-1" />
-                              {t('generateQRCode')}
+                              <QrCode className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                              <span className="hidden sm:inline">{t('generateQRCode')}</span>
+                              <span className="sm:hidden">QR</span>
                             </Button>
                             <Button 
                               variant="outline" 
@@ -300,10 +303,11 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                                 setSelectedClass(cls.id);
                                 setShowReports(true);
                               }}
-                              className="h-8"
+                              className="h-7 sm:h-8 text-xs px-2"
                             >
-                              <Eye className="h-4 w-4 mr-1" />
-                              {t('reports')}
+                              <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                              <span className="hidden sm:inline">{t('reports')}</span>
+                              <span className="sm:hidden">View</span>
                             </Button>
                             <Button 
                               variant="outline" 
@@ -312,9 +316,9 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                                 e.stopPropagation();
                                 exportAttendance(cls.id);
                               }}
-                              className="h-8"
+                              className="h-7 sm:h-8 text-xs px-2"
                             >
-                              <Download className="h-4 w-4" />
+                              <Download className="h-3 w-3 sm:h-4 sm:w-4" />
                             </Button>
                           </div>
                         </div>
@@ -336,31 +340,31 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {getClassAttendance(selectedClass).slice(-20).reverse().map((record, index) => (
                     <div 
                       key={index} 
-                      className="flex items-center justify-between p-3 rounded-lg border border-muted/50 bg-background/50"
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 rounded-lg border border-muted/50 bg-background/50 space-y-2 sm:space-y-0"
                     >
-                      <div className="flex items-center space-x-3">
-                        <div className="bg-green-100 dark:bg-green-900/20 p-2 rounded-full">
-                          <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                      <div className="flex items-center space-x-2 sm:space-x-3">
+                        <div className="bg-green-100 dark:bg-green-900/20 p-1.5 sm:p-2 rounded-full">
+                          <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 dark:text-green-400" />
                         </div>
                         <div>
-                          <p className="font-medium text-foreground">
+                          <p className="font-medium text-foreground text-sm sm:text-base">
                             {getStudentName(record.studentId)}
                           </p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             ID: {record.studentId}
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <Clock className="h-4 w-4 mr-1" />
+                      <div className="flex items-center justify-between sm:justify-end sm:text-right space-x-2">
+                        <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+                          <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                           {formatDate(record.timestamp)}
                         </div>
-                        <Badge variant="outline" className="text-green-600 border-green-200 dark:border-green-800">
+                        <Badge variant="outline" className="text-green-600 border-green-200 dark:border-green-800 text-xs">
                           {t('present')}
                         </Badge>
                       </div>
