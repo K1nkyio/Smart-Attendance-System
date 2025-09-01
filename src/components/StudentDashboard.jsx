@@ -95,7 +95,7 @@ const StudentDashboard = ({ user, attendanceData, mockData, onScanQR, onLogout }
             <CardHeader>
               <CardTitle className="flex items-center">
                 <BookOpen className="h-5 w-5 mr-2 text-primary" />
-                {t('myClasses')}
+                {t('studentMyClasses')}
               </CardTitle>
             </CardHeader>
             <CardContent>

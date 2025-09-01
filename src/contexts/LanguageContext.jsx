@@ -44,8 +44,8 @@ const translations = {
     invalidCredentials: 'Invalid credentials. Try demo accounts below.',
     
     // Instructor Dashboard
-    myClasses: 'My Classes',
-    createClass: 'Create Class',
+    instructorMyClasses: 'My Classes',
+    instructorCreateClass: 'Create Class',
     qrGenerator: 'QR Generator',
     selectClassToGenerate: 'Select a class to generate QR code',
     regenerate: 'Regenerate',
@@ -69,7 +69,7 @@ const translations = {
     quickScan: 'Quick Scan',
     scanQRCodeToMark: 'Scan QR code to mark attendance',
     scanQRCode: 'Scan QR Code',
-    myClasses: 'My Classes',
+    studentMyClasses: 'My Classes',
     recentAttendance: 'Recent Attendance',
     sessionsAttended: 'sessions attended',
     noClassesEnrolled: 'No classes enrolled yet',
@@ -100,7 +100,7 @@ const translations = {
     maxStudents: 'Maximum students (default: 50)',
     briefDescription: 'Brief description of the class',
     creating: 'Creating...',
-    createClass: 'Create Class',
+    formCreateClass: 'Create Class',
     
     // QR Scanner
     scanAttendance: 'Scan Attendance',
@@ -207,8 +207,8 @@ const translations = {
     invalidCredentials: 'Utambulisho batili. Jaribu akaunti za jaribio hapa chini.',
     
     // Instructor Dashboard
-    myClasses: 'Madarasa Yangu',
-    createClass: 'Unda Darasa',
+    instructorMyClasses: 'Madarasa Yangu',
+    instructorCreateClass: 'Unda Darasa',
     qrGenerator: 'Kizalishaji cha QR',
     selectClassToGenerate: 'Chagua darasa ili kutengeneza msimbo wa QR',
     regenerate: 'Tengeneza Upya',
@@ -232,7 +232,7 @@ const translations = {
     quickScan: 'Changanuzi Haraka',
     scanQRCodeToMark: 'Changanua msimbo wa QR ili kuweka alama ya mahudhurio',
     scanQRCode: 'Changanua Msimbo wa QR',
-    myClasses: 'Madarasa Yangu',
+    studentMyClasses: 'Madarasa Yangu',
     recentAttendance: 'Mahudhurio ya Hivi Karibuni',
     sessionsAttended: 'vipindi vilivyohudhuria',
     noClassesEnrolled: 'Hakuna madarasa yaliyojisajiliwa bado',
@@ -263,7 +263,7 @@ const translations = {
     maxStudents: 'Wanafunzi wa juu (chaguo-msingi: 50)',
     briefDescription: 'Maelezo mafupi ya darasa',
     creating: 'Inaunda...',
-    createClass: 'Unda Darasa',
+    formCreateClass: 'Unda Darasa',
     
     // QR Scanner
     scanAttendance: 'Changanua Mahudhurio',

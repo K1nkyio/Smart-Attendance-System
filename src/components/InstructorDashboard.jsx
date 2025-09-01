@@ -225,11 +225,11 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Users className="h-5 w-5 mr-2 text-primary" />
-                  {t('myClasses')} ({instructorClasses.length})
+                  {t('instructorMyClasses')} ({instructorClasses.length})
                 </div>
                 <Button onClick={() => setShowCreateForm(true)} size="sm">
                   <Plus className="h-4 w-4 mr-2" />
-                  {t('createClass')}
+                  {t('instructorCreateClass')}
                 </Button>
               </CardTitle>
             </CardHeader>
