@@ -115,14 +115,9 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/10 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl animate-float"></div>
-        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-accent/10 to-transparent rounded-full blur-3xl animate-float" style={{ animationDelay: '1.5s' }}></div>
-      </div>
 
       <div className="relative z-10 min-h-screen p-4 space-y-6">
-        {/* Header */}
+        
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center space-x-3 sm:space-x-4">
             <div className="bg-primary/10 p-2 sm:p-3 rounded-full">
@@ -139,7 +134,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
           </Button>
         </div>
 
-        {/* Create Class Form */}
+        
         {showCreateForm && (
           <div className="max-w-4xl mx-auto mb-6">
             <ClassCreationForm 
@@ -149,7 +144,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
           </div>
         )}
 
-        {/* Detailed Reports View */}
+        
         {showReports && selectedClass && (
           <div className="max-w-6xl mx-auto mb-6">
             <div className="flex items-center mb-4">
@@ -170,12 +165,12 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
           </div>
         )}
 
-        {/* Main Dashboard */}
+        
         {!showCreateForm && !showReports && (
           <div className="max-w-7xl mx-auto space-y-6">
-          {/* Mobile: Stack vertically, Desktop: Grid layout */}
+          
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* QR Code Generator */}
+          
           <Card className="lg:col-span-1 glass-effect">
             <CardHeader>
               <CardTitle className="flex items-center text-lg">
@@ -219,7 +214,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
             </CardContent>
           </Card>
 
-          {/* My Classes */}
+          
           <Card className="lg:col-span-3 glass-effect">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
@@ -330,7 +325,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
             </CardContent>
           </Card>
 
-          {/* Attendance Details */}
+          
           {selectedClass && (
             <Card className="lg:col-span-4 glass-effect">
               <CardHeader>
