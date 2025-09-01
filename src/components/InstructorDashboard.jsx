@@ -114,7 +114,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/10 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary to-accent relative overflow-hidden">
       <div className="relative z-10 min-h-screen p-4 space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center space-x-3 sm:space-x-4">
@@ -231,8 +231,8 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                   
                   const cardClasses = "p-3 sm:p-4 rounded-lg border transition-all cursor-pointer " +
                     (selectedClass === cls.id
-                      ? "border-primary bg-primary/5"
-                      : "border-muted/50 bg-background/50 hover:bg-background/80");
+                      ? "border-primary bg-primary"
+                      : "border-muted bg-background hover:bg-background");
                   
                   return (
                     <div 
@@ -331,10 +331,10 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                   {getClassAttendance(selectedClass).slice(-20).reverse().map((record, index) => (
                     <div 
                       key={index} 
-                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 rounded-lg border border-muted/50 bg-background/50 space-y-2 sm:space-y-0"
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 rounded-lg border border-muted bg-background space-y-2 sm:space-y-0"
                     >
                       <div className="flex items-center space-x-2 sm:space-x-3">
-                        <div className="bg-green-100 dark:bg-green-900/20 p-1.5 sm:p-2 rounded-full">
+                        <div className="bg-green-100 dark:bg-green-900 p-1.5 sm:p-2 rounded-full">
                           <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 dark:text-green-400" />
                         </div>
                         <div>
