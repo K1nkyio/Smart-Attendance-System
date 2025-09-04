@@ -49,8 +49,8 @@ const StudentDashboard = ({ user, attendanceData, mockData, onScanQR, onLogout }
             <User className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Welcome, {user.name}</h1>
-            <p className="text-muted-foreground">{user.program}</p>
+            <h1 className="text-h1 text-foreground">Welcome, {user.name}</h1>
+            <p className="text-body-sm text-muted-foreground">{user.program}</p>
           </div>
         </div>
 
@@ -66,8 +66,8 @@ const StudentDashboard = ({ user, attendanceData, mockData, onScanQR, onLogout }
                   </div>
                 </div>
               </div>
-              <CardTitle className="text-xl">{t('quickScan')}</CardTitle>
-              <p className="text-muted-foreground text-sm">
+              <CardTitle className="text-h3">{t('quickScan')}</CardTitle>
+              <p className="text-muted-foreground text-body-sm">
                 {t('scanQRCodeToMark')}
               </p>
             </CardHeader>
@@ -105,14 +105,14 @@ const StudentDashboard = ({ user, attendanceData, mockData, onScanQR, onLogout }
                     >
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <h3 className="font-semibold text-foreground">{cls.name}</h3>
-                          <p className="text-muted-foreground text-sm">{cls.instructor}</p>
+                          <h3 className="text-h4 text-foreground">{cls.name}</h3>
+                          <p className="text-muted-foreground text-body-sm">{cls.instructor}</p>
                         </div>
                         <Badge variant="secondary">
                           {attendanceCount} {t('sessionsAttended')}
                         </Badge>
                       </div>
-                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                      <div className="flex items-center space-x-4 text-body-sm text-muted-foreground">
                         <div className="flex items-center">
                           <Calendar className="h-4 w-4 mr-1" />
                           {cls.schedule}

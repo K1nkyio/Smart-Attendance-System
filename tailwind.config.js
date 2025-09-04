@@ -21,6 +21,16 @@ module.exports = {
         'inter': ['Inter', 'sans-serif'],
         'playfair': ['Playfair Display', 'serif'],
       },
+      fontSize: {
+        'display': ['2.5rem', { lineHeight: '1.2', fontWeight: '700' }], // 40px
+        'h1': ['2rem', { lineHeight: '1.25', fontWeight: '600' }], // 32px
+        'h2': ['1.5rem', { lineHeight: '1.3', fontWeight: '600' }], // 24px
+        'h3': ['1.25rem', { lineHeight: '1.4', fontWeight: '500' }], // 20px
+        'h4': ['1.125rem', { lineHeight: '1.4', fontWeight: '500' }], // 18px
+        'body': ['1rem', { lineHeight: '1.5', fontWeight: '400' }], // 16px
+        'body-sm': ['0.875rem', { lineHeight: '1.5', fontWeight: '400' }], // 14px
+        'caption': ['0.75rem', { lineHeight: '1.4', fontWeight: '400' }], // 12px
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
