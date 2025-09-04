@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   QrCode, 
-  LogOut, 
   Calendar, 
   MapPin, 
   Clock, 
@@ -45,20 +44,14 @@ const StudentDashboard = ({ user, attendanceData, mockData, onScanQR, onLogout }
 
       <div className="relative z-10 min-h-screen p-4 space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-4">
-            <div className="bg-primary/10 p-3 rounded-full">
-              <User className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Welcome, {user.name}</h1>
-              <p className="text-muted-foreground">{user.program}</p>
-            </div>
+        <div className="flex items-center space-x-4">
+          <div className="bg-primary/10 p-3 rounded-full">
+            <User className="h-6 w-6 text-primary" />
           </div>
-          <Button variant="outline" onClick={onLogout}>
-            <LogOut className="h-4 w-4 mr-2" />
-            {t('logout')}
-          </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Welcome, {user.name}</h1>
+            <p className="text-muted-foreground">{user.program}</p>
+          </div>
         </div>
 
         <div className="max-w-6xl mx-auto grid lg:grid-cols-3 gap-6">

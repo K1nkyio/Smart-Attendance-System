@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { QRCodeSVG } from 'qrcode.react';
 import { 
   QrCode, 
-  LogOut, 
   Users, 
   Calendar, 
   MapPin, 
@@ -116,20 +115,14 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary to-accent relative overflow-hidden">
       <div className="relative z-10 min-h-screen p-3 sm:p-4 space-y-5 sm:space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-center space-x-3 sm:space-x-4">
-            <div className="bg-primary/10 p-2 sm:p-3 rounded-full">
-              <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-foreground">Welcome, {user.name}</h1>
-              <p className="text-sm sm:text-base text-muted-foreground">{user.department}</p>
-            </div>
+        <div className="flex items-center space-x-3 sm:space-x-4">
+          <div className="bg-primary/10 p-2 sm:p-3 rounded-full">
+            <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
           </div>
-          <Button variant="outline" onClick={onLogout} size="sm" className="self-end sm:self-auto">
-            <LogOut className="h-4 w-4 mr-2" />
-            {t('logout')}
-          </Button>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">Welcome, {user.name}</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">{user.department}</p>
+          </div>
         </div>
 
         {showCreateForm && (
