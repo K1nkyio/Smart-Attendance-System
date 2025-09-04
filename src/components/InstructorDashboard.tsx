@@ -380,7 +380,6 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
               )}
             </CardContent>
           </Card>
-          )}
           </div>
         )}
       </div>
