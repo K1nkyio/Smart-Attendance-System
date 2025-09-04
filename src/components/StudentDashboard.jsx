@@ -48,9 +48,9 @@ const StudentDashboard = ({ user, attendanceData, mockData, onScanQR, onLogout }
           <div className="bg-primary/10 p-3 rounded-full">
             <User className="h-6 w-6 text-primary" />
           </div>
-          <div>
-            <h1 className="text-h1 text-foreground">Welcome, {user.name}</h1>
-            <p className="text-body-sm text-muted-foreground">{user.program}</p>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl sm:text-2xl lg:text-h1 text-foreground break-words">Welcome, {user.name}</h1>
+            <p className="text-body-sm text-muted-foreground truncate">{user.program}</p>
           </div>
         </div>
 

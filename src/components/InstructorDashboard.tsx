@@ -119,9 +119,9 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
           <div className="bg-primary/10 p-2 sm:p-3 rounded-full">
             <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
           </div>
-          <div>
-            <h1 className="text-h1 text-foreground">Welcome, {user.name}</h1>
-            <p className="text-body-sm text-muted-foreground">{user.department}</p>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl sm:text-2xl lg:text-h1 text-foreground break-words">Welcome, {user.name}</h1>
+            <p className="text-body-sm text-muted-foreground truncate">{user.department}</p>
           </div>
         </div>
 
