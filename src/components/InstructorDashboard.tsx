@@ -384,6 +384,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
           </div>
           </div>
         )}
+      </div>
     </div>
   );
 };
