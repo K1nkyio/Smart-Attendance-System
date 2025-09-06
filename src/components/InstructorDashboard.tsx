@@ -316,7 +316,7 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <BarChart3 className="h-5 w-5 mr-2 text-primary" />
-                  {t('attendanceDetails')} - {instructorClasses.find(c => c.id === selectedClass)?.name}
+                  <span className="text-lg font-bold">{t('attendanceDetails')} - {instructorClasses.find(c => c.id === selectedClass)?.name}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -331,16 +331,16 @@ const InstructorDashboard = ({ user, attendanceData, mockData, onLogout }) => {
                           <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 dark:text-green-400" />
                         </div>
                         <div>
-                          <p className="text-h4 text-foreground">
+                          <p className="text-base text-foreground">
                             {getStudentName(record.studentId)}
                           </p>
-                          <p className="text-body-sm text-muted-foreground">
+                          <p className="text-sm text-muted-foreground">
                             ID: {record.studentId}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center justify-between sm:justify-end sm:text-right space-x-2">
-                        <div className="flex items-center text-body-sm text-muted-foreground">
+                        <div className="flex items-center text-sm text-muted-foreground">
                           <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                           {formatDate(record.timestamp)}
                         </div>
