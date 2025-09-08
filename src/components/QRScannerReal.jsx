@@ -1,0 +1,285 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { QrCode, Camera, CheckCircle, AlertCircle, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+
+const QRScannerReal = ({ user, profile, onBack }) => {
+  const [isScanning, setIsScanning] = useState(false);
+  const [scannedData, setScannedData] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const processAttendance = async (classId) => {
+    try {
+      setIsProcessing(true);
+
+      // Check if class exists
+      const { data: classData, error: classError } = await supabase
+        .from('classes')
+        .select('*')
+        .eq('id', classId)
+        .single();
+
+      if (classError || !classData) {
+        throw new Error('Class not found');
+      }
+
+      // Check if student is enrolled
+      const { data: enrollment, error: enrollmentError } = await supabase
+        .from('class_enrollments')
+        .select('*')
+        .eq('class_id', classId)
+        .eq('student_id', profile.id)
+        .single();
+
+      if (enrollmentError || !enrollment) {
+        // Auto-enroll student if not already enrolled
+        const { error: enrollError } = await supabase
+          .from('class_enrollments')
+          .insert([{
+            class_id: classId,
+            student_id: profile.id
+          }]);
+
+        if (enrollError) {
+          throw new Error('Failed to enroll in class');
+        }
+        
+        toast.success('Automatically enrolled in class!');
+      }
+
+      // Check if already marked present today
+      const today = new Date().toISOString().split('T')[0];
+      const { data: existingRecord } = await supabase
+        .from('attendance_records')
+        .select('*')
+        .eq('class_id', classId)
+        .eq('student_id', profile.id)
+        .eq('session_date', today)
+        .single();
+
+      if (existingRecord) {
+        throw new Error('Attendance already marked for today');
+      }
+
+      // Create attendance record
+      const { error: attendanceError } = await supabase
+        .from('attendance_records')
+        .insert([{
+          class_id: classId,
+          student_id: profile.id,
+          session_date: today,
+          status: 'present'
+        }]);
+
+      if (attendanceError) {
+        throw new Error('Failed to record attendance');
+      }
+
+      toast.success(`Attendance marked for ${classData.name}!`);
+      return classData;
+    } catch (error) {
+      console.error('Error processing attendance:', error);
+      toast.error(error.message || 'Failed to process attendance');
+      throw error;
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleQRCodeScan = async (qrData) => {
+    try {
+      const parsedData = JSON.parse(qrData);
+      
+      if (!parsedData.classId || parsedData.action !== 'attendance') {
+        throw new Error('Invalid QR code format');
+      }
+
+      const classData = await processAttendance(parsedData.classId);
+      setScannedData({
+        ...parsedData,
+        className: classData.name,
+        classCode: classData.code,
+        success: true
+      });
+    } catch (error) {
+      console.error('QR scan error:', error);
+      setScannedData({
+        success: false,
+        error: error.message || 'Invalid QR code'
+      });
+    }
+  };
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      // For demo purposes, we'll simulate QR code scanning with a manual input
+      // In a real app, you'd use a QR code reading library
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        // This is a simplified demo - normally you'd decode the QR from the image
+        toast.error('QR code scanning from image not implemented in demo. Please use manual input.');
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      toast.error('Failed to read QR code from image');
+    }
+  };
+
+  const handleManualInput = () => {
+    // For demo purposes, let's create a sample QR data
+    const sampleClassId = '123e4567-e89b-12d3-a456-426614174000'; // This should match a real class ID
+    const qrData = JSON.stringify({
+      classId: sampleClassId,
+      timestamp: new Date().toISOString(),
+      action: 'attendance'
+    });
+    
+    handleQRCodeScan(qrData);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/10 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl animate-float"></div>
+        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-accent/10 to-transparent rounded-full blur-3xl animate-float" style={{ animationDelay: '1.5s' }}></div>
+      </div>
+
+      <div className="relative z-10 p-6">
+        <div className="max-w-md mx-auto space-y-6">
+          <Card className="glass-effect shadow-medium border-0">
+            <CardHeader className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse"></div>
+                  <div className="relative bg-primary/10 p-4 rounded-full">
+                    <QrCode className="h-8 w-8 text-primary" />
+                  </div>
+                </div>
+              </div>
+              <CardTitle className="text-2xl font-playfair font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
+                QR Code Scanner
+              </CardTitle>
+              <p className="text-muted-foreground">
+                Scan the QR code displayed by your instructor
+              </p>
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+              {!scannedData ? (
+                <div className="space-y-4">
+                  <div className="text-center py-8 border-2 border-dashed border-muted rounded-lg">
+                    <Camera className="h-16 w-16 mx-auto mb-4 text-muted-foreground/50" />
+                    <p className="text-muted-foreground mb-4">
+                      Ready to scan QR code
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full gradient-primary"
+                      disabled={isProcessing}
+                    >
+                      <Camera className="mr-2 h-4 w-4" />
+                      Upload QR Code Image
+                    </Button>
+
+                    <Button
+                      onClick={handleManualInput}
+                      variant="outline"
+                      className="w-full"
+                      disabled={isProcessing}
+                    >
+                      Demo Scan (Test)
+                    </Button>
+
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                  </div>
+
+                  {isProcessing && (
+                    <div className="text-center py-4">
+                      <div className="animate-spin inline-block w-6 h-6 border-2 border-primary border-t-transparent rounded-full"></div>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Processing attendance...
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className={`text-center py-6 rounded-lg ${
+                    scannedData.success 
+                      ? 'bg-green-50 border border-green-200 dark:bg-green-950/20 dark:border-green-800' 
+                      : 'bg-red-50 border border-red-200 dark:bg-red-950/20 dark:border-red-800'
+                  }`}>
+                    {scannedData.success ? (
+                      <>
+                        <CheckCircle className="h-12 w-12 mx-auto mb-3 text-green-600" />
+                        <h3 className="font-semibold text-green-800 dark:text-green-400 mb-2">
+                          Attendance Recorded!
+                        </h3>
+                        <p className="text-green-700 dark:text-green-300 text-sm">
+                          {scannedData.className} ({scannedData.classCode})
+                        </p>
+                        <Badge variant="secondary" className="mt-2">
+                          Present
+                        </Badge>
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="h-12 w-12 mx-auto mb-3 text-red-600" />
+                        <h3 className="font-semibold text-red-800 dark:text-red-400 mb-2">
+                          Scan Failed
+                        </h3>
+                        <p className="text-red-700 dark:text-red-300 text-sm">
+                          {scannedData.error}
+                        </p>
+                      </>
+                    )}
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={() => setScannedData(null)}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      Scan Another
+                    </Button>
+                    <Button
+                      onClick={onBack}
+                      className="flex-1"
+                    >
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Back to Dashboard
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <div className="text-center text-sm text-muted-foreground">
+            <p>Make sure the QR code is clearly visible and well-lit</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default QRScannerReal;

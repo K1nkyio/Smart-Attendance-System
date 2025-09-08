@@ -1,7 +1,7 @@
-import AttendanceSystem from '../components/AttendanceSystem';
+import AttendanceSystemReal from '../components/AttendanceSystemReal';
 
 const Index = () => {
-  return <AttendanceSystem />;
+  return <AttendanceSystemReal />;
 };
 
 export default Index;
