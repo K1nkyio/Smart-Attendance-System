@@ -119,8 +119,31 @@ const QRScannerReal = ({ user, profile, onBack }) => {
   };
 
   useEffect(() => {
-    // Check if camera is available
-    QrScanner.hasCamera().then(setHasCamera);
+    // Check if camera is available and permissions
+    const checkCameraSupport = async () => {
+      try {
+        const hasCamera = await QrScanner.hasCamera();
+        setHasCamera(hasCamera);
+        console.log('Camera availability:', hasCamera);
+        
+        if (hasCamera) {
+          console.log('Checking camera permissions...');
+          // Try to get camera permissions early
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            stream.getTracks().forEach(track => track.stop()); // Stop the stream immediately
+            console.log('Camera permissions granted');
+          } catch (error) {
+            console.log('Camera permission not yet granted:', error);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking camera support:', error);
+        setHasCamera(false);
+      }
+    };
+    
+    checkCameraSupport();
     
     return () => {
       stopScanning();
@@ -130,9 +153,28 @@ const QRScannerReal = ({ user, profile, onBack }) => {
   const startScanning = async () => {
     try {
       setIsScanning(true);
+      console.log('Starting QR scanner...');
       
-      if (!videoRef.current) return;
+      if (!videoRef.current) {
+        throw new Error('Video element not available');
+      }
+
+      // First, explicitly request camera permission
+      try {
+        console.log('Requesting camera permission...');
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { 
+            facingMode: 'environment' // Use back camera if available
+          } 
+        });
+        console.log('Camera permission granted, stream obtained');
+        stream.getTracks().forEach(track => track.stop()); // Stop the test stream
+      } catch (permissionError) {
+        console.error('Camera permission denied:', permissionError);
+        throw new Error('Camera access denied. Please allow camera permissions and try again.');
+      }
       
+      // Now create the QR scanner
       qrScannerRef.current = new QrScanner(
         videoRef.current,
         (result) => {
@@ -145,14 +187,36 @@ const QRScannerReal = ({ user, profile, onBack }) => {
           highlightScanRegion: true,
           highlightCodeOutline: true,
           maxScansPerSecond: 5,
+          preferredCamera: 'environment', // Prefer back camera
         }
       );
       
+      console.log('Starting QR scanner camera...');
       await qrScannerRef.current.start();
-      console.log('Camera started successfully');
+      console.log('QR scanner started successfully');
+      
+      // Add a small delay to ensure video is ready
+      setTimeout(() => {
+        if (videoRef.current && videoRef.current.videoWidth === 0) {
+          console.warn('Video stream may not be ready');
+        }
+      }, 1000);
+      
     } catch (error) {
-      console.error('Failed to start camera:', error);
-      toast.error('Failed to access camera. Please check permissions and ensure you\'re using HTTPS.');
+      console.error('Failed to start QR scanner:', error);
+      
+      let errorMessage = 'Failed to access camera. ';
+      if (error.message.includes('Permission denied') || error.message.includes('NotAllowedError')) {
+        errorMessage += 'Please allow camera permissions and try again.';
+      } else if (error.message.includes('NotFoundError')) {
+        errorMessage += 'No camera found on this device.';
+      } else if (error.message.includes('NotSupportedError')) {
+        errorMessage += 'Camera not supported in this browser.';
+      } else {
+        errorMessage += 'Please ensure you\'re using HTTPS and camera permissions are allowed.';
+      }
+      
+      toast.error(errorMessage);
       setIsScanning(false);
     }
   };
@@ -245,10 +309,17 @@ const QRScannerReal = ({ user, profile, onBack }) => {
                         Position QR code within the frame
                       </p>
                     </div>
-                  )}
+                    ) : (
+                      <div className="text-center p-4 bg-yellow-50 border border-yellow-200 rounded-lg dark:bg-yellow-950/20 dark:border-yellow-800">
+                        <Camera className="h-8 w-8 mx-auto mb-2 text-yellow-600" />
+                        <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                          Camera not available or permissions not granted
+                        </p>
+                      </div>
+                    )}
 
                   <div className="space-y-3">
-                    {hasCamera && (
+                    {hasCamera ? (
                       <Button
                         onClick={isScanning ? stopScanning : startScanning}
                         className={`w-full ${isScanning ? 'bg-red-600 hover:bg-red-700' : 'gradient-primary'}`}
