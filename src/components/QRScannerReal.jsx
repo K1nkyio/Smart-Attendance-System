@@ -2,15 +2,19 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { QrCode, Camera, CheckCircle, AlertCircle, ArrowLeft } from "lucide-react";
+import { QrCode, Camera, CheckCircle, AlertCircle, ArrowLeft, Video, VideoOff } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import QrScanner from 'qr-scanner';
 
 const QRScannerReal = ({ user, profile, onBack }) => {
   const [isScanning, setIsScanning] = useState(false);
   const [scannedData, setScannedData] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [hasCamera, setHasCamera] = useState(false);
   const fileInputRef = useRef(null);
+  const videoRef = useRef(null);
+  const qrScannerRef = useRef(null);
 
   const processAttendance = async (classId) => {
     try {
@@ -114,21 +118,60 @@ const QRScannerReal = ({ user, profile, onBack }) => {
     }
   };
 
+  useEffect(() => {
+    // Check if camera is available
+    QrScanner.hasCamera().then(setHasCamera);
+    
+    return () => {
+      stopScanning();
+    };
+  }, []);
+
+  const startScanning = async () => {
+    try {
+      setIsScanning(true);
+      
+      if (!videoRef.current) return;
+      
+      qrScannerRef.current = new QrScanner(
+        videoRef.current,
+        (result) => {
+          handleQRCodeScan(result.data);
+          stopScanning();
+        },
+        {
+          highlightScanRegion: true,
+          highlightCodeOutline: true,
+        }
+      );
+      
+      await qrScannerRef.current.start();
+    } catch (error) {
+      console.error('Failed to start camera:', error);
+      toast.error('Failed to access camera. Please check permissions.');
+      setIsScanning(false);
+    }
+  };
+
+  const stopScanning = () => {
+    if (qrScannerRef.current) {
+      qrScannerRef.current.stop();
+      qrScannerRef.current.destroy();
+      qrScannerRef.current = null;
+    }
+    setIsScanning(false);
+  };
+
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
     try {
-      // For demo purposes, we'll simulate QR code scanning with a manual input
-      // In a real app, you'd use a QR code reading library
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        // This is a simplified demo - normally you'd decode the QR from the image
-        toast.error('QR code scanning from image not implemented in demo. Please use manual input.');
-      };
-      reader.readAsDataURL(file);
+      const result = await QrScanner.scanImage(file);
+      handleQRCodeScan(result);
     } catch (error) {
-      toast.error('Failed to read QR code from image');
+      console.error('Failed to scan QR code from image:', error);
+      toast.error('No QR code found in the image');
     }
   };
 
@@ -175,18 +218,56 @@ const QRScannerReal = ({ user, profile, onBack }) => {
             <CardContent className="space-y-6">
               {!scannedData ? (
                 <div className="space-y-4">
-                  <div className="text-center py-8 border-2 border-dashed border-muted rounded-lg">
-                    <Camera className="h-16 w-16 mx-auto mb-4 text-muted-foreground/50" />
-                    <p className="text-muted-foreground mb-4">
-                      Ready to scan QR code
-                    </p>
-                  </div>
+                  {!isScanning ? (
+                    <div className="text-center py-8 border-2 border-dashed border-muted rounded-lg">
+                      <Camera className="h-16 w-16 mx-auto mb-4 text-muted-foreground/50" />
+                      <p className="text-muted-foreground mb-4">
+                        Ready to scan QR code
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <video
+                        ref={videoRef}
+                        className="w-full h-64 bg-black rounded-lg object-cover"
+                        playsInline
+                        muted
+                      />
+                      <div className="absolute inset-0 border-2 border-primary rounded-lg pointer-events-none">
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-primary rounded-lg animate-pulse"></div>
+                      </div>
+                      <p className="text-center text-sm text-muted-foreground mt-2">
+                        Position QR code within the frame
+                      </p>
+                    </div>
+                  )}
 
                   <div className="space-y-3">
+                    {hasCamera && (
+                      <Button
+                        onClick={isScanning ? stopScanning : startScanning}
+                        className={`w-full ${isScanning ? 'bg-red-600 hover:bg-red-700' : 'gradient-primary'}`}
+                        disabled={isProcessing}
+                      >
+                        {isScanning ? (
+                          <>
+                            <VideoOff className="mr-2 h-4 w-4" />
+                            Stop Camera
+                          </>
+                        ) : (
+                          <>
+                            <Video className="mr-2 h-4 w-4" />
+                            Start Camera Scan
+                          </>
+                        )}
+                      </Button>
+                    )}
+
                     <Button
                       onClick={() => fileInputRef.current?.click()}
-                      className="w-full gradient-primary"
-                      disabled={isProcessing}
+                      variant="outline"
+                      className="w-full"
+                      disabled={isProcessing || isScanning}
                     >
                       <Camera className="mr-2 h-4 w-4" />
                       Upload QR Code Image
@@ -196,7 +277,7 @@ const QRScannerReal = ({ user, profile, onBack }) => {
                       onClick={handleManualInput}
                       variant="outline"
                       className="w-full"
-                      disabled={isProcessing}
+                      disabled={isProcessing || isScanning}
                     >
                       Demo Scan (Test)
                     </Button>
