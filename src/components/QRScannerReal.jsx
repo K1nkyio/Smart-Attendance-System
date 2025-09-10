@@ -12,6 +12,8 @@ const QRScannerReal = ({ user, profile, onBack }) => {
   const [scannedData, setScannedData] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [hasCamera, setHasCamera] = useState(false);
+  const [permissionError, setPermissionError] = useState(null);
+  const [suggestNewWindow, setSuggestNewWindow] = useState(false);
   const fileInputRef = useRef(null);
   const videoRef = useRef(null);
   const qrScannerRef = useRef(null);
@@ -129,10 +131,45 @@ const QRScannerReal = ({ user, profile, onBack }) => {
 
   const startScanning = async () => {
     try {
+      setSuggestNewWindow(false);
+      setPermissionError(null);
       setIsScanning(true);
       
       if (!videoRef.current) return;
-      
+
+      // Explicitly trigger permission prompt before initializing QrScanner
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error('Camera API not supported in this browser');
+      }
+
+      const isLocalhost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+      if (!window.isSecureContext && !isLocalhost) {
+        throw new Error('Camera access requires HTTPS. Please open the app over HTTPS.');
+      }
+
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' } },
+          audio: false,
+        });
+        // Stop immediately so QrScanner can take over the video element
+        stream.getTracks().forEach((t) => t.stop());
+      } catch (err) {
+        setPermissionError(err?.name || 'PermissionError');
+        setSuggestNewWindow(true);
+        if (err?.name === 'NotAllowedError') {
+          throw new Error('Camera permission denied. Please allow access and try again.');
+        }
+        if (err?.name === 'NotFoundError' || err?.name === 'OverconstrainedError') {
+          throw new Error('No suitable camera found on this device.');
+        }
+        if (err?.name === 'SecurityError') {
+          throw new Error('Camera blocked by browser security policy (iframe or insecure context).');
+        }
+        throw err;
+      }
+
       qrScannerRef.current = new QrScanner(
         videoRef.current,
         (result) => {
@@ -142,13 +179,17 @@ const QRScannerReal = ({ user, profile, onBack }) => {
         {
           highlightScanRegion: true,
           highlightCodeOutline: true,
+          preferredCamera: 'environment',
         }
       );
-      
+
       await qrScannerRef.current.start();
     } catch (error) {
       console.error('Failed to start camera:', error);
-      toast.error('Failed to access camera. Please check permissions.');
+      toast.error(
+        error?.message ||
+          "Failed to access camera. Please ensure you're using HTTPS and camera permissions are allowed."
+      );
       setIsScanning(false);
     }
   };
@@ -261,6 +302,19 @@ const QRScannerReal = ({ user, profile, onBack }) => {
                           </>
                         )}
                       </Button>
+                    )}
+
+                    {suggestNewWindow && (
+                      <div className="text-center text-xs text-muted-foreground">
+                        If permission prompt doesn't appear, open the scanner in a new window.
+                        <Button
+                          variant="outline"
+                          className="w-full mt-2"
+                          onClick={() => window.open(window.location.href, '_blank', 'noopener,noreferrer')}
+                        >
+                          Open Scanner in New Window
+                        </Button>
+                      </div>
                     )}
 
                     <Button
