@@ -159,6 +159,18 @@ const QRScannerReal = ({ user, profile, onBack }) => {
         throw new Error('Video element not available');
       }
 
+      // Check if we're in a secure context (HTTPS or localhost)
+      if (!window.isSecureContext) {
+        console.error('Not in secure context (HTTPS required)');
+        throw new Error('Camera access requires HTTPS. Please use HTTPS or deploy your app to test camera functionality.');
+      }
+
+      // Check if getUserMedia is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        console.error('getUserMedia not available');
+        throw new Error('Camera API not supported in this browser or environment.');
+      }
+
       // First, explicitly request camera permission
       try {
         console.log('Requesting camera permission...');
@@ -171,7 +183,17 @@ const QRScannerReal = ({ user, profile, onBack }) => {
         stream.getTracks().forEach(track => track.stop()); // Stop the test stream
       } catch (permissionError) {
         console.error('Camera permission denied:', permissionError);
-        throw new Error('Camera access denied. Please allow camera permissions and try again.');
+        console.error('Permission error details:', permissionError.name, permissionError.message);
+        
+        if (permissionError.name === 'NotAllowedError') {
+          throw new Error('Camera access denied. Please allow camera permissions in your browser and try again.');
+        } else if (permissionError.name === 'NotFoundError') {
+          throw new Error('No camera found on this device.');
+        } else if (permissionError.name === 'NotSupportedError') {
+          throw new Error('Camera not supported in this browser or environment.');
+        } else {
+          throw new Error(`Camera access failed: ${permissionError.message}`);
+        }
       }
       
       // Now create the QR scanner
@@ -334,8 +356,11 @@ const QRScannerReal = ({ user, profile, onBack }) => {
                     ) : (
                       <div className="text-center p-4 bg-yellow-50 border border-yellow-200 rounded-lg dark:bg-yellow-950/20 dark:border-yellow-800">
                         <Camera className="h-8 w-8 mx-auto mb-2 text-yellow-600" />
-                        <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                        <p className="text-sm text-yellow-700 dark:text-yellow-300 mb-2">
                           Camera not available or permissions not granted
+                        </p>
+                        <p className="text-xs text-yellow-600 dark:text-yellow-400">
+                          Note: Camera scanning requires HTTPS. If you're in preview mode, try deploying your app to test camera functionality.
                         </p>
                       </div>
                     )}
