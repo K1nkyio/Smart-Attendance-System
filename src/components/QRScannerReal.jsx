@@ -6,6 +6,8 @@ import { QrCode, Camera, CheckCircle, AlertCircle, ArrowLeft, Video, VideoOff } 
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import QrScanner from 'qr-scanner';
+import qrScannerWorkerPath from 'qr-scanner/qr-scanner-worker.min.js';
+QrScanner.WORKER_PATH = qrScannerWorkerPath;
 
 const QRScannerReal = ({ user, profile, onBack }) => {
   const [isScanning, setIsScanning] = useState(false);
@@ -232,6 +234,7 @@ const QRScannerReal = ({ user, profile, onBack }) => {
                         className="w-full h-64 bg-black rounded-lg object-cover"
                         playsInline
                         muted
+                        autoPlay
                       />
                       <div className="absolute inset-0 border-2 border-primary rounded-lg pointer-events-none">
                         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-primary rounded-lg animate-pulse"></div>
