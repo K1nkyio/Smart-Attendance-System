@@ -311,6 +311,7 @@ const QRScannerReal = ({ user, profile, onBack }) => {
                     </div>
                   )}
 
+
                   <div className="space-y-3">
                     {hasCamera ? (
                       <Button
@@ -337,27 +338,6 @@ const QRScannerReal = ({ user, profile, onBack }) => {
                           Camera not available or permissions not granted
                         </p>
                       </div>
-                    )}
-
-                  <div className="space-y-3">
-                    {hasCamera ? (
-                      <Button
-                        onClick={isScanning ? stopScanning : startScanning}
-                        className={`w-full ${isScanning ? 'bg-red-600 hover:bg-red-700' : 'gradient-primary'}`}
-                        disabled={isProcessing}
-                      >
-                        {isScanning ? (
-                          <>
-                            <VideoOff className="mr-2 h-4 w-4" />
-                            Stop Camera
-                          </>
-                        ) : (
-                          <>
-                            <Video className="mr-2 h-4 w-4" />
-                            Start Camera Scan
-                          </>
-                        )}
-                      </Button>
                     )}
 
                     <Button
