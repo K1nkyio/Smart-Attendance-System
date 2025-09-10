@@ -6,8 +6,6 @@ import { QrCode, Camera, CheckCircle, AlertCircle, ArrowLeft, Video, VideoOff } 
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import QrScanner from 'qr-scanner';
-import qrScannerWorkerPath from 'qr-scanner/qr-scanner-worker.min.js';
-QrScanner.WORKER_PATH = qrScannerWorkerPath;
 
 const QRScannerReal = ({ user, profile, onBack }) => {
   const [isScanning, setIsScanning] = useState(false);
@@ -138,19 +136,23 @@ const QRScannerReal = ({ user, profile, onBack }) => {
       qrScannerRef.current = new QrScanner(
         videoRef.current,
         (result) => {
+          console.log('QR Code detected:', result.data);
           handleQRCodeScan(result.data);
           stopScanning();
         },
         {
+          returnDetailedScanResult: true,
           highlightScanRegion: true,
           highlightCodeOutline: true,
+          maxScansPerSecond: 5,
         }
       );
       
       await qrScannerRef.current.start();
+      console.log('Camera started successfully');
     } catch (error) {
       console.error('Failed to start camera:', error);
-      toast.error('Failed to access camera. Please check permissions.');
+      toast.error('Failed to access camera. Please check permissions and ensure you\'re using HTTPS.');
       setIsScanning(false);
     }
   };
