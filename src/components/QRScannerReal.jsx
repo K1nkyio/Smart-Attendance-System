@@ -309,6 +309,27 @@ const QRScannerReal = ({ user, profile, onBack }) => {
                         Position QR code within the frame
                       </p>
                     </div>
+                  )}
+
+                  <div className="space-y-3">
+                    {hasCamera ? (
+                      <Button
+                        onClick={isScanning ? stopScanning : startScanning}
+                        className={`w-full ${isScanning ? 'bg-red-600 hover:bg-red-700' : 'gradient-primary'}`}
+                        disabled={isProcessing}
+                      >
+                        {isScanning ? (
+                          <>
+                            <VideoOff className="mr-2 h-4 w-4" />
+                            Stop Camera
+                          </>
+                        ) : (
+                          <>
+                            <Video className="mr-2 h-4 w-4" />
+                            Start Camera Scan
+                          </>
+                        )}
+                      </Button>
                     ) : (
                       <div className="text-center p-4 bg-yellow-50 border border-yellow-200 rounded-lg dark:bg-yellow-950/20 dark:border-yellow-800">
                         <Camera className="h-8 w-8 mx-auto mb-2 text-yellow-600" />
