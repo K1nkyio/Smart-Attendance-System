@@ -135,19 +135,6 @@ const QRScannerReal = ({ user, profile, onBack }) => {
       setPermissionError(null);
       setIsScanning(true);
 
-      // If running inside an iframe, open scanner in a new window to ensure camera permissions
-      const inIframe = window.top !== window.self;
-      if (inIframe) {
-        setIsScanning(false);
-        const url = new URL(window.location.href);
-        url.searchParams.set('scanner', '1');
-        const w = window.open(url.toString(), '_blank', 'noopener,noreferrer');
-        if (!w) {
-          setSuggestNewWindow(true);
-          toast.error('Pop-up blocked. Please click "Open Scanner in New Window".');
-        }
-        return;
-      }
       
       if (!videoRef.current) return;
 
@@ -171,7 +158,7 @@ const QRScannerReal = ({ user, profile, onBack }) => {
         stream.getTracks().forEach((t) => t.stop());
       } catch (err) {
         setPermissionError(err?.name || 'PermissionError');
-        setSuggestNewWindow(true);
+        
         if (err?.name === 'NotAllowedError') {
           throw new Error('Camera permission denied. Please allow access and try again.');
         }
@@ -200,12 +187,6 @@ const QRScannerReal = ({ user, profile, onBack }) => {
       await qrScannerRef.current.start();
     } catch (error) {
       console.error('Failed to start camera:', error);
-      if (error?.name === 'SecurityError') {
-        const url = new URL(window.location.href);
-        url.searchParams.set('scanner', '1');
-        const w = window.open(url.toString(), '_blank', 'noopener,noreferrer');
-        if (!w) setSuggestNewWindow(true);
-      }
       toast.error(
         error?.message ||
           "Failed to access camera. Please ensure you're using HTTPS and camera permissions are allowed."
@@ -293,6 +274,7 @@ const QRScannerReal = ({ user, profile, onBack }) => {
                         className="w-full h-64 bg-black rounded-lg object-cover"
                         playsInline
                         muted
+                        autoPlay
                       />
                       <div className="absolute inset-0 border-2 border-primary rounded-lg pointer-events-none">
                         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-primary rounded-lg animate-pulse"></div>
