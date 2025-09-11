@@ -133,6 +133,14 @@ const QRScannerReal = ({ user, profile, onBack }) => {
     try {
       setSuggestNewWindow(false);
       setPermissionError(null);
+      
+      // Check if running in iframe (like preview) and auto-open new window
+      if (window.parent !== window) {
+        window.open(window.location.href, '_blank', 'noopener,noreferrer');
+        toast.info('Opening scanner in new window for camera access...');
+        return;
+      }
+      
       setIsScanning(true);
       
       if (!videoRef.current) return;
