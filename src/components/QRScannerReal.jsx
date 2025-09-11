@@ -134,6 +134,20 @@ const QRScannerReal = ({ user, profile, onBack }) => {
       setSuggestNewWindow(false);
       setPermissionError(null);
       setIsScanning(true);
+
+      // If running inside an iframe, open scanner in a new window to ensure camera permissions
+      const inIframe = window.top !== window.self;
+      if (inIframe) {
+        setIsScanning(false);
+        const url = new URL(window.location.href);
+        url.searchParams.set('scanner', '1');
+        const w = window.open(url.toString(), '_blank', 'noopener,noreferrer');
+        if (!w) {
+          setSuggestNewWindow(true);
+          toast.error('Pop-up blocked. Please click "Open Scanner in New Window".');
+        }
+        return;
+      }
       
       if (!videoRef.current) return;
 
@@ -186,6 +200,12 @@ const QRScannerReal = ({ user, profile, onBack }) => {
       await qrScannerRef.current.start();
     } catch (error) {
       console.error('Failed to start camera:', error);
+      if (error?.name === 'SecurityError') {
+        const url = new URL(window.location.href);
+        url.searchParams.set('scanner', '1');
+        const w = window.open(url.toString(), '_blank', 'noopener,noreferrer');
+        if (!w) setSuggestNewWindow(true);
+      }
       toast.error(
         error?.message ||
           "Failed to access camera. Please ensure you're using HTTPS and camera permissions are allowed."
@@ -310,7 +330,11 @@ const QRScannerReal = ({ user, profile, onBack }) => {
                         <Button
                           variant="outline"
                           className="w-full mt-2"
-                          onClick={() => window.open(window.location.href, '_blank', 'noopener,noreferrer')}
+                          onClick={() => {
+                            const url = new URL(window.location.href);
+                            url.searchParams.set('scanner', '1');
+                            window.open(url.toString(), '_blank', 'noopener,noreferrer');
+                          }}
                         >
                           Open Scanner in New Window
                         </Button>

@@ -57,6 +57,15 @@ const AttendanceSystemReal = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // If the page is opened with ?scanner=1 or #scanner, and a student is logged in, go directly to scanner
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const wantsScanner = params.get('scanner') === '1' || window.location.hash === '#scanner';
+    if (wantsScanner && user && profile?.user_type === 'student') {
+      setCurrentView('scanner');
+    }
+  }, [user, profile]);
+
   const fetchUserProfile = async (userId) => {
     try {
       const { data, error } = await supabase
