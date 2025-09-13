@@ -138,37 +138,56 @@ const QRScannerReal = ({ user, profile, onBack }) => {
       
       if (!videoRef.current) return;
 
-      // Explicitly trigger permission prompt before initializing QrScanner
+      // Check browser support
       if (!navigator.mediaDevices?.getUserMedia) {
         throw new Error('Camera API not supported in this browser');
       }
 
+      // Check HTTPS requirement
       const isLocalhost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
       if (!window.isSecureContext && !isLocalhost) {
         throw new Error('Camera access requires HTTPS. Please open the app over HTTPS.');
       }
 
+      // Request camera permission explicitly
       let stream;
       try {
+        // Request camera access with ideal back camera for QR scanning
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: 'environment' } },
+          video: { 
+            facingMode: { ideal: 'environment' },
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          },
           audio: false,
         });
-        // Stop immediately so QrScanner can take over the video element
-        stream.getTracks().forEach((t) => t.stop());
+        
+        // Briefly show the stream to confirm camera access, then stop for QrScanner
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play();
+          
+          // Give a moment for the video to initialize
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
+          // Now stop the stream so QrScanner can take control
+          stream.getTracks().forEach(track => track.stop());
+          videoRef.current.srcObject = null;
+        }
       } catch (err) {
+        console.error('Camera permission error:', err);
         setPermissionError(err?.name || 'PermissionError');
         
         if (err?.name === 'NotAllowedError') {
-          throw new Error('Camera permission denied. Please allow access and try again.');
+          throw new Error('Camera permission denied. Please allow camera access and try again.');
         }
         if (err?.name === 'NotFoundError' || err?.name === 'OverconstrainedError') {
           throw new Error('No suitable camera found on this device.');
         }
         if (err?.name === 'SecurityError') {
-          throw new Error('Camera blocked by browser security policy (iframe or insecure context).');
+          throw new Error('Camera blocked by browser security policy.');
         }
-        throw err;
+        throw new Error(`Camera error: ${err.message || 'Unknown camera error'}`);
       }
 
       qrScannerRef.current = new QrScanner(
@@ -209,25 +228,35 @@ const QRScannerReal = ({ user, profile, onBack }) => {
     if (!file) return;
 
     try {
+      setIsProcessing(true);
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        throw new Error('Please select a valid image file');
+      }
+      
+      // Scan the uploaded image for QR code
       const result = await QrScanner.scanImage(file);
-      handleQRCodeScan(result);
+      
+      if (!result) {
+        throw new Error('No QR code found in the image');
+      }
+      
+      // Process the scanned QR code data
+      await handleQRCodeScan(result);
+      
     } catch (error) {
       console.error('Failed to scan QR code from image:', error);
-      toast.error('No QR code found in the image');
+      toast.error(error.message || 'Failed to scan QR code from image');
+    } finally {
+      setIsProcessing(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
-  const handleManualInput = () => {
-    // For demo purposes, let's create a sample QR data
-    const sampleClassId = '123e4567-e89b-12d3-a456-426614174000'; // This should match a real class ID
-    const qrData = JSON.stringify({
-      classId: sampleClassId,
-      timestamp: new Date().toISOString(),
-      action: 'attendance'
-    });
-    
-    handleQRCodeScan(qrData);
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/10 relative overflow-hidden">
@@ -333,14 +362,6 @@ const QRScannerReal = ({ user, profile, onBack }) => {
                       Upload QR Code Image
                     </Button>
 
-                    <Button
-                      onClick={handleManualInput}
-                      variant="outline"
-                      className="w-full"
-                      disabled={isProcessing || isScanning}
-                    >
-                      Demo Scan (Test)
-                    </Button>
 
                     <input
                       ref={fileInputRef}
