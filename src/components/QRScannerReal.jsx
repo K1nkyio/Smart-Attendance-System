@@ -6,6 +6,8 @@ import { QrCode, Camera, CheckCircle, AlertCircle, ArrowLeft, Video, VideoOff } 
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import QrScanner from 'qr-scanner';
+import qrScannerWorkerUrl from 'qr-scanner/qr-scanner-worker.min.js?url';
+QrScanner.WORKER_PATH = qrScannerWorkerUrl;
 
 const QRScannerReal = ({ user, profile, onBack }) => {
   const [isScanning, setIsScanning] = useState(false);
@@ -236,14 +238,15 @@ const QRScannerReal = ({ user, profile, onBack }) => {
       }
       
       // Scan the uploaded image for QR code
-      const result = await QrScanner.scanImage(file);
+      const result = await QrScanner.scanImage(file, { returnDetailedScanResult: true });
       
-      if (!result) {
+      const qrText = typeof result === 'string' ? result : result?.data;
+      if (!qrText) {
         throw new Error('No QR code found in the image');
       }
       
       // Process the scanned QR code data
-      await handleQRCodeScan(result);
+      await handleQRCodeScan(qrText);
       
     } catch (error) {
       console.error('Failed to scan QR code from image:', error);
