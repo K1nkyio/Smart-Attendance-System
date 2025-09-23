@@ -133,68 +133,23 @@ const QRScannerReal = ({ user, profile, onBack }) => {
 
   const startScanning = async () => {
     try {
-      setSuggestNewWindow(false);
       setPermissionError(null);
       setIsScanning(true);
-
       
-      if (!videoRef.current) return;
+      if (!videoRef.current) {
+        throw new Error('Video element not ready');
+      }
 
       // Check browser support
       if (!navigator.mediaDevices?.getUserMedia) {
         throw new Error('Camera API not supported in this browser');
       }
 
-      // Check HTTPS requirement
-      const isLocalhost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
-      if (!window.isSecureContext && !isLocalhost) {
-        throw new Error('Camera access requires HTTPS. Please open the app over HTTPS.');
-      }
-
-      // Request camera permission explicitly
-      let stream;
-      try {
-        // Request camera access with ideal back camera for QR scanning
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { 
-            facingMode: { ideal: 'environment' },
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          },
-          audio: false,
-        });
-        
-        // Briefly show the stream to confirm camera access, then stop for QrScanner
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          await videoRef.current.play();
-          
-          // Give a moment for the video to initialize
-          await new Promise(resolve => setTimeout(resolve, 100));
-          
-          // Now stop the stream so QrScanner can take control
-          stream.getTracks().forEach(track => track.stop());
-          videoRef.current.srcObject = null;
-        }
-      } catch (err) {
-        console.error('Camera permission error:', err);
-        setPermissionError(err?.name || 'PermissionError');
-        
-        if (err?.name === 'NotAllowedError') {
-          throw new Error('Camera permission denied. Please allow camera access and try again.');
-        }
-        if (err?.name === 'NotFoundError' || err?.name === 'OverconstrainedError') {
-          throw new Error('No suitable camera found on this device.');
-        }
-        if (err?.name === 'SecurityError') {
-          throw new Error('Camera blocked by browser security policy.');
-        }
-        throw new Error(`Camera error: ${err.message || 'Unknown camera error'}`);
-      }
-
+      // Initialize QR Scanner directly without pre-requesting permission
       qrScannerRef.current = new QrScanner(
         videoRef.current,
         (result) => {
+          console.log('QR Code detected:', result.data);
           handleQRCodeScan(result.data);
           stopScanning();
         },
@@ -202,17 +157,45 @@ const QRScannerReal = ({ user, profile, onBack }) => {
           highlightScanRegion: true,
           highlightCodeOutline: true,
           preferredCamera: 'environment',
+          maxScansPerSecond: 5,
+          calculateScanRegion: (video) => {
+            // Create a centered scan region
+            const smallerDimension = Math.min(video.videoWidth, video.videoHeight);
+            const scanRegionSize = Math.floor(smallerDimension * 0.6);
+            return {
+              x: Math.floor((video.videoWidth - scanRegionSize) / 2),
+              y: Math.floor((video.videoHeight - scanRegionSize) / 2),
+              width: scanRegionSize,
+              height: scanRegionSize,
+            };
+          }
         }
       );
 
+      // Start the scanner (this will request camera permission)
       await qrScannerRef.current.start();
+      console.log('Camera started successfully');
+      
     } catch (error) {
       console.error('Failed to start camera:', error);
-      toast.error(
-        error?.message ||
-          "Failed to access camera. Please ensure you're using HTTPS and camera permissions are allowed."
-      );
+      
+      let errorMessage = 'Failed to access camera.';
+      
+      if (error.name === 'NotAllowedError') {
+        errorMessage = 'Camera permission denied. Please allow camera access and try again.';
+      } else if (error.name === 'NotFoundError') {
+        errorMessage = 'No camera found on this device.';
+      } else if (error.name === 'OverconstrainedError') {
+        errorMessage = 'Camera does not meet requirements.';
+      } else if (error.name === 'SecurityError') {
+        errorMessage = 'Camera blocked by browser security policy. Please use HTTPS.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
       setIsScanning(false);
+      setPermissionError(error.name || 'UnknownError');
     }
   };
 
@@ -237,12 +220,35 @@ const QRScannerReal = ({ user, profile, onBack }) => {
         throw new Error('Please select a valid image file');
       }
       
-      // Scan the uploaded image for QR code
-      const result = await QrScanner.scanImage(file, { returnDetailedScanResult: true });
+      console.log('Scanning image for QR code...');
       
-      const qrText = typeof result === 'string' ? result : result?.data;
-      if (!qrText) {
-        throw new Error('No QR code found in the image');
+      // Scan the uploaded image for QR code
+      let qrText;
+      try {
+        const result = await QrScanner.scanImage(file, { 
+          returnDetailedScanResult: true,
+          scanRegion: null // Scan entire image
+        });
+        
+        // Handle different result formats
+        if (typeof result === 'string') {
+          qrText = result;
+        } else if (result && result.data) {
+          qrText = result.data;
+        } else if (result && typeof result === 'object' && result.text) {
+          qrText = result.text;
+        }
+        
+        console.log('QR scan result:', result);
+        console.log('Extracted text:', qrText);
+        
+      } catch (scanError) {
+        console.error('QR scan error:', scanError);
+        throw new Error('No QR code found in the image or image format not supported');
+      }
+      
+      if (!qrText || qrText.trim() === '') {
+        throw new Error('No readable QR code found in the image');
       }
       
       // Process the scanned QR code data
