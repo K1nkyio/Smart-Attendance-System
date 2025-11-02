@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, QrCode, GraduationCap, BarChart3, Loader } from "lucide-react";
-import AuthForm from './AuthForm';
 import StudentDashboardReal from './StudentDashboardReal';
 import InstructorDashboardReal from './InstructorDashboardReal';
 import QRScannerReal from './QRScannerReal';
@@ -61,21 +60,35 @@ const AttendanceSystemReal = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const wantsScanner = params.get('scanner') === '1' || window.location.hash === '#scanner';
-    if (wantsScanner && user && profile?.user_type === 'student') {
+    if (wantsScanner && user && profile?.role === 'student') {
       setCurrentView('scanner');
     }
   }, [user, profile]);
 
   const fetchUserProfile = async (userId) => {
     try {
-      const { data, error } = await supabase
+      // Fetch profile
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (profileError) throw profileError;
+
+      // Fetch user role
+      const { data: roleData, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
         .eq('user_id', userId)
         .single();
 
-      if (error) throw error;
-      setProfile(data);
+      if (roleError) throw roleError;
+
+      setProfile({
+        ...profileData,
+        role: roleData.role
+      });
     } catch (error) {
       console.error('Error fetching profile:', error);
       toast.error('Failed to load user profile');
@@ -84,13 +97,13 @@ const AttendanceSystemReal = () => {
 
   const loadStats = async () => {
     try {
-      // Get total students count
+      // Get total students count by checking user_roles table
       const { count: studentsCount } = await supabase
-        .from('profiles')
+        .from('user_roles')
         .select('*', { count: 'exact', head: true })
-        .eq('user_type', 'student');
+        .eq('role', 'student');
 
-      // Get total attendance count
+      // Get total attendance count if table exists
       const { count: attendanceCount } = await supabase
         .from('attendance_records')
         .select('*', { count: 'exact', head: true });
@@ -135,7 +148,7 @@ const AttendanceSystemReal = () => {
 
       <div className="grid md:grid-cols-3 gap-6">
         <Card className="glass-effect hover:shadow-medium transition-all duration-300 group cursor-pointer"
-              onClick={() => setCurrentView('auth')}>
+              onClick={() => window.location.href = '/auth'}>
           <CardHeader className="text-center pb-4">
             <div className="flex justify-center mb-3">
               <div className="p-3 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
@@ -155,7 +168,7 @@ const AttendanceSystemReal = () => {
         </Card>
 
         <Card className="glass-effect hover:shadow-medium transition-all duration-300 group cursor-pointer"
-              onClick={() => setCurrentView('auth')}>
+              onClick={() => window.location.href = '/auth'}>
           <CardHeader className="text-center pb-4">
             <div className="flex justify-center mb-3">
               <div className="p-3 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
@@ -229,23 +242,6 @@ const AttendanceSystemReal = () => {
     );
   }
 
-  if (currentView === 'auth') {
-    return (
-      <>
-        <Navigation 
-          showBack 
-          onBack={() => setCurrentView('home')}
-          title="Authentication"
-        />
-        <div className="pt-16">
-          <AuthForm 
-            onBack={() => setCurrentView('home')}
-          />
-        </div>
-      </>
-    );
-  }
-
   if (currentView === 'scanner') {
     return (
       <>
@@ -267,7 +263,7 @@ const AttendanceSystemReal = () => {
     );
   }
 
-  if (currentView === 'dashboard' && profile?.user_type === 'student') {
+  if (currentView === 'dashboard' && profile?.role === 'student') {
     return (
       <>
         <Navigation 
@@ -288,7 +284,7 @@ const AttendanceSystemReal = () => {
     );
   }
 
-  if (currentView === 'dashboard' && profile?.user_type === 'instructor') {
+  if (currentView === 'dashboard' && profile?.role === 'instructor') {
     return (
       <>
         <Navigation 
